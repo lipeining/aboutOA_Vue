@@ -19,7 +19,8 @@
         </el-input>
       </el-form-item>
       <el-form-item label="intro" prop="intro">
-        <el-input type="textarea" :rows="3" v-model="user.intro" placeholder="Please enter introduction">
+        <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}"
+                  v-model="user.intro" placeholder="Please enter introduction">
         </el-input>
       </el-form-item>
       <el-button type="primary" :loading="loading" @click="submit('loginForm')">

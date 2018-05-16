@@ -1,51 +1,83 @@
 <template>
   <div>
     <h1>users</h1>
-    <el-table
-      :data="tableData"
-      border
-      style="width: 100%">
-      <el-table-column
-        fixed
-        prop="date"
-        label="日期"
-        width="150">
-      </el-table-column>
-      <el-table-column
-        prop="name"
-        label="姓名"
-        width="120">
-      </el-table-column>
-      <el-table-column
-        prop="province"
-        label="省份"
-        width="120">
-      </el-table-column>
-      <el-table-column
-        prop="city"
-        label="市区"
-        width="120">
-      </el-table-column>
-      <el-table-column
-        prop="address"
-        label="地址"
-        width="300">
-      </el-table-column>
-      <el-table-column
-        prop="zip"
-        label="邮编"
-        width="120">
-      </el-table-column>
-      <el-table-column
-        fixed="right"
-        label="操作"
-        width="100">
-        <template slot-scope="scope">
-          <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
-          <el-button type="text" size="small">编辑</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <div>
+      <el-col :span="5">
+        <el-input
+          placeholder="搜索用户"
+          v-model="search"
+          size="medium"
+          clearable>
+        </el-input>
+      </el-col>
+    </div>
+    <div>
+      <el-table
+        :data="users"
+        border
+        size="medium">
+        <el-table-column
+          prop="name"
+          label="姓名"
+        >
+        </el-table-column>
+        <el-table-column
+          prop="email"
+          label="邮箱"
+        >
+        </el-table-column>
+        <el-table-column
+          prop="phone"
+          label="电话"
+        >
+        </el-table-column>
+        <el-table-column
+          prop="intro"
+          label="简介"
+        >
+        </el-table-column>
+        <el-table-column
+          label="操作"
+        >
+          <template slot-scope="scope">
+            <!--<el-popover trigger="hover" placement="top">-->
+            <!--<p>姓名: {{ scope.row.name }}</p>-->
+            <!--<p>permission: {{ scope.row.permission }}</p>-->
+            <!--<div slot="reference" class="name-wrapper">-->
+            <!--<el-tag size="medium">{{ scope.row.name }}</el-tag>-->
+            <!--</div>-->
+            <!--</el-popover>-->
+            <!--<el-tooltip :content="'on: admin,off: user'" placement="top">-->
+            <!--<el-switch-->
+            <!--v-model.lazy="scope.row.permission"-->
+            <!--v-model.number="scope.row.permission"-->
+            <!--:value="scope.row.permission"-->
+            <!--@change="handleGrantUser(scope.$index, scope.row)"-->
+            <!--active-color="#13ce66"-->
+            <!--inactive-color="#ff4949"-->
+            <!--active-value="90"-->
+            <!--inactive-value="0">-->
+            <!--</el-switch>-->
+            <!--</el-tooltip>-->
+            <el-button v-if="scope.row.permission===90"
+                       size="mini"
+                       type="info"
+                       @click="handleGrantUser(scope.$index, scope.row, 0)">grant user
+            </el-button>
+            <el-button v-else-if="scope.row.permission===0"
+                       size="mini"
+                       type="success"
+                       @click="handleGrantUser(scope.$index, scope.row, 90)">grant amdin
+            </el-button>
+            <el-button
+              size="mini"
+              type="danger"
+              @click="handleDelUser(scope.$index, scope.row)">删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
     <div class="block">
       <el-pagination
         @size-change="handleSizeChange"
@@ -61,7 +93,8 @@
 </template>
 
 <script>
-  import {getUsers} from '../api/user';
+  import {getUsers, grantUser, delUser} from '../api/user';
+  import {debounce} from 'lodash';
 
   export default {
     name   : "users",
@@ -70,9 +103,11 @@
       let pageSize  = 5;
       let pageIndex = 1;
       let total     = 100;
+      let search    = '';
       return {
         users    : users,
         total    : total,
+        search   : search,
         pageIndex: pageIndex,
         pageSize : pageSize
       }
@@ -80,39 +115,99 @@
     created() {
       this.getUsers();
     },
+    watch  : {
+      search: function () {
+        this.getUsers();
+      }
+    },
     methods: {
-      getUsers() {
-        getUsers({
+      getUsers: debounce(function () {
+        return getUsers({
           pageIndex: this.pageIndex,
-          pageSize : this.pageSize
+          pageSize : this.pageSize,
+          search   : this.search
         })
           .then(result => {
             this.users = result.users.rows;
             this.total = result.users.count;
+            // console.log(JSON.stringify(this.users));
+            // return '1';
+            // debug of el-switch why does it change the permission value
           })
           .catch(err => {
             this.$notify.error({
               title  : 'error',
               message: err
             });
+          });
+      }, 500),
+      handleGrantUser(index, row, val) {
+        grantUser({
+          id        : row.id,
+          permission: val
+        })
+          .then(() => {
+            this.$notify({
+              type   : 'success',
+              title  : 'grantUser',
+              message: `${row.id}:${row.name} permission: ${row.permission}->${val}`
+            });
+            row.permission = val;
           })
+          .catch((err) => {
+            this.$notify({
+              type   : 'error',
+              title  : 'grantUser',
+              message: err
+            });
+          });
+      },
+      handleDelUser(index, row) {
+        this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText : '取消',
+          type             : 'warning',
+          center           : true
+        }).then(() => {
+          delUser({
+            id: row.id
+          })
+            .then(() => {
+              this.users.splice(index, 1);
+              this.$message({
+                type   : 'success',
+                message: '删除成功!' + index
+              });
+            });
+        }).catch(() => {
+          this.$message({
+            type   : 'info',
+            message: '已取消删除'
+          });
+        });
+        // this.$notify({
+        //   type   : 'success',
+        //   title  : 'delUser',
+        //   message: row.id + row.name,
+        // });
       },
       handleCurrentChange(val) {
         this.pageIndex = val;
         this.getUsers();
-        this.$notify({
-          type   : 'success',
-          title  : 'pageChange',
-          message: val,
-        });
+        // this.$notify({
+        //   type   : 'success',
+        //   title  : 'pageChange',
+        //   message: val,
+        // });
       },
       handleSizeChange(val) {
         this.pageSize = val;
-        this.$notify({
-          type   : 'success',
-          title  : 'sizeChange',
-          message: val,
-        });
+        this.getUsers();
+        // this.$notify({
+        //   type   : 'success',
+        //   title  : 'sizeChange',
+        //   message: val,
+        // });
       }
     }
   }

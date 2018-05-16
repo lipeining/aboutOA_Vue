@@ -16,8 +16,7 @@ let routes = [
   {
     path     : '/',
     name     : 'HelloWorld',
-    component: HelloWorld,
-    meta     : {requiresNotAuth: true}
+    component: HelloWorld
   },
   {
     path     : '/reg',
