@@ -1,5 +1,12 @@
 # aboutoa
 
+
+transition-group
+must have a class and min height so i can move to it 
+
+
+
+
 > A Vue.js project
 
 ## Build Setup
