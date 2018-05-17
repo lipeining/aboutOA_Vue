@@ -100,7 +100,7 @@
     name   : "users",
     data() {
       let users     = [];
-      let pageSize  = 5;
+      let pageSize  = 10;
       let pageIndex = 1;
       let total     = 100;
       let search    = '';

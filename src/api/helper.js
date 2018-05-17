@@ -6,11 +6,11 @@ function handleResponse(res) {
   // console.log(res);
   if (res.body.code === 3) {
     this.$store.dispatch('delUserInfo')
-      .then(()=>{
-        this.$router.push({
-          name: 'login'
-        });
+      .then(() => {
       });
+    this.$router.push({
+      name: 'login'
+    });
   } else if (res.body.code === 4) {
     return Promise.reject(res.body.Message.err);
   } else {
