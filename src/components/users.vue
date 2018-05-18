@@ -18,26 +18,26 @@
         size="medium">
         <el-table-column
           prop="name"
-          label="姓名"
+          label="姓名" align="center"
         >
         </el-table-column>
         <el-table-column
           prop="email"
-          label="邮箱"
+          label="邮箱" align="center"
         >
         </el-table-column>
         <el-table-column
           prop="phone"
-          label="电话"
+          label="电话" align="center"
         >
         </el-table-column>
         <el-table-column
           prop="intro"
-          label="简介"
+          label="简介" align="center"
         >
         </el-table-column>
         <el-table-column
-          label="操作"
+          label="操作" align="center"
         >
           <template slot-scope="scope">
             <!--<el-popover trigger="hover" placement="top">-->

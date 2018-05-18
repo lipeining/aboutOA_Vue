@@ -9,6 +9,7 @@ import users from '@/components/users'
 import profile from '@/components/profile'
 import projects from '@/components/projects'
 import categories from '@/components/categories'
+import store from "../vuex/user";
 
 Vue.use(Router);
 
@@ -75,4 +76,34 @@ let routes = [
     ]
   },
 ];
-export default routes;
+
+const router = new Router({
+  mode  : 'history',
+  routes: routes
+});
+
+// 登录中间验证，页面需要登录,而没有登录的情况直接跳转登录
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (store.getters.isLogin) {
+      next();
+    } else {
+      next({
+        path : '/login',
+        query: {redirect: to.fullPath}
+      });
+    }
+  } else if (to.matched.some(record => record.meta.requiresNotAuth)) {
+    if (store.getters.isLogin) {
+      next({
+        path: '/home'
+      });
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
+});
+
+export default router;

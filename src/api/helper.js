@@ -1,16 +1,14 @@
 const request = require('superagent');
+import store from '../vuex/user';
+import router from '../router';
 
 export {get, post, put, del};
 
 function handleResponse(res) {
   // console.log(res);
   if (res.body.code === 3) {
-    this.$store.dispatch('delUserInfo')
-      .then(() => {
-      });
-    this.$router.push({
-      name: 'login'
-    });
+    store.dispatch('delUserInfo');
+    router.push({name: 'login'});
   } else if (res.body.code === 4) {
     return Promise.reject(res.body.Message.err);
   } else {

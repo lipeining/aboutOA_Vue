@@ -22,9 +22,6 @@
     <div class="checkbox">
       <el-checkbox v-model="draggable">Enable drag and drop</el-checkbox>
       <el-checkbox v-model="editable">Enable edit categories</el-checkbox>
-      <el-button type="success" size="mini" @click="updateCategoryOrder">
-        update category order
-      </el-button>
     </div>
 
     <div class="fluid container">
@@ -36,7 +33,7 @@
             <div v-for="category in categories" :key="category.id" class="category">
               <el-form auto-complete="on" :model="category"
                        label-width="60px" size="medium" :disabled="!editable"
-                       :inline="true" :rules="rules" :ref="setFormName(category.id)">
+                       :inline="true" :rules="rules" :ref="setCateFormName(category.id)">
                 <el-form-item prop="name">
                   <el-input style="width:10em" type="text"
                             v-model="category.name" placeholder="Please enter name">
@@ -47,7 +44,7 @@
                   </el-input>
                 </el-form-item>
                 <el-button type="primary" icon="el-icon-success" circle
-                           @click="updateCategory(setFormName(category.id), category.id)">
+                           @click="updateCategory(setCateFormName(category.id), category.id)">
                 </el-button>
                 <el-button type="danger" icon="el-icon-delete" circle
                            @click="deleteCategory(category.id)">
@@ -68,18 +65,63 @@
               <!--</transition-group>-->
               <!--</draggable>-->
               <!--</div>-->
+              <!--</div>-->
+              <!--<el-button type="success" @click="openProjectForm(category.id)">-->
+              <!--<i class="el-icon-plus"></i> new project-->
+              <!--</el-button>-->
             </div>
-            <!--</div>-->
           </transition-group>
         </draggable>
       </el-row>
     </div>
+
+    <!-- Form for new project-->
+    <!--<div>-->
+    <!--<el-button type="text" @click="projectFormVisible = true">-->
+    <!--<i class="el-icon-plus"></i> new project-->
+    <!--</el-button>-->
+
+    <!--<el-dialog title="new project" :visible.sync="projectFormVisible">-->
+    <!--<div slot="footer" class="dialog-footer">-->
+    <!--<el-button @click="projectFormVisible = false">取 消</el-button>-->
+    <!--<el-button type="primary" @click="projectFormVisible = false">确 定</el-button>-->
+    <!--</div>-->
+    <!--</el-dialog>-->
+    <!--</div>-->
+    <div>
+      <el-form :model="project" label-width="70px" auto-complete="on"
+               :rules="projectRules" :ref="setProFormName(1)">
+        <!--'name', 'order', 'intro', 'url', 'hint', 'logo', 'categoryId', 'segment'-->
+        <el-form-item label="name" prop="name">
+          <el-input v-model="project.name" type="text"></el-input>
+        </el-form-item>
+        <el-form-item label="intro" prop="intro">
+          <el-input v-model="project.intro" type="text"></el-input>
+        </el-form-item>
+        <el-form-item label="logo" prop="logo">
+          <el-input v-model="project.logo" type="text"></el-input>
+        </el-form-item>
+        <el-form-item label="url" prop="url">
+          <el-input v-model="project.url" type="text"></el-input>
+        </el-form-item>
+        <el-form-item label="hint" prop="hint">
+          <el-input v-model="project.hint" type="text"></el-input>
+        </el-form-item>
+        <el-form-item label="segment" prop="segment">
+          <el-input v-model="project.segment" type="text"></el-input>
+        </el-form-item>
+        <el-button @click="resetProjectForm(setProFormName(1))">取 消</el-button>
+        <el-button type="primary" @click="createPro(setProFormName(1), categories[0].id)">确 定</el-button>
+      </el-form>
+    </div>
+
   </div>
 </template>
 
 <script>
   import draggable from 'vuedraggable';
   import {getCategories, createCate, updateCate, delCate} from '../api/category';
+  import {createPro} from '../api/project';
   import _ from 'lodash';
 
   export default {
@@ -89,35 +131,78 @@
     },
     data() {
       // form validate rules
-      const rules = {
+      const rules        = {
         name : [
-          {required: false, message: '请输入类别名称'},
+          {required: true, message: '请输入类别名称'},
           {min: 5, max: 16, message: '长度在 5 到 16 个字符'}
         ],
         intro: [
-          {required: false, message: '请输入类别描述'},
+          {required: true, message: '请输入类别描述'},
           {min: 20, max: 120, message: '长度在 20 到 120 个字符'}
         ]
       };
+      const projectRules = {};
+      let project        = {
+        name      : '',
+        intro     : '',
+        logo      : '',
+        segment   : '',
+        url       : '',
+        hint      : '',
+        categoryId: 0
+      };
       return {
-        category       : {
+        category          : {
           name : '',
           intro: ''
         },
-        rules          : rules,
-        categories     : [],
-        editable       : true,
-        draggable      : true,
-        isDragging     : false,
-        delayedDragging: false
+        project           : project,
+        rules             : rules,
+        projectRules      : projectRules,
+        categories        : [],
+        editable          : true,
+        draggable         : true,
+        isDragging        : false,
+        projectFormVisible: false,
+        // projectFormVisible: true,
+        delayedDragging   : false
       }
     },
     created() {
       this.getCategories();
     },
     methods   : {
-      setFormName(id) {
-        return 'Form' + id;
+      setCateFormName(id) {
+        return 'category' + id;
+      },
+      setProFormName(id) {
+        this.projectFormVisible = true;
+        return 'project' + id;
+      },
+      resetProjectForm(formName) {
+        this.projectFormVisible = false;
+        this.$refs[formName].resetFields();
+      },
+      createPro(formName, categoryId) {
+        console.log(JSON.stringify(this.project));
+        this.project.categoryId = categoryId;
+        createPro(this.project)
+          .then(result => {
+            this.$refs[formName].resetFields();
+            this.getCategories();
+            this.$notify({
+              type   : 'info',
+              title  : 'create project',
+              message: categoryId
+            });
+          })
+          .catch(err => {
+            this.$notify({
+              type   : 'error',
+              title  : 'create project',
+              message: err
+            });
+          });
       },
       deleteCategory(id) {
         delCate({
@@ -200,7 +285,11 @@
           categories: JSON.stringify(categories)
         })
           .then(result => {
-            this.getCategories();
+            // this.getCategories();
+            // we can just handle the changed no need to getCategories();
+            for (let i = 0; i < this.categories.length; i++) {
+              this.categories[i].changed = 0;
+            }
             this.$notify({
               type   : 'success',
               title  : 'success',
@@ -262,10 +351,11 @@
             // validated
             createCate(this.category)
               .then(result => {
-                this.category = {
-                  name : '',
-                  intro: ''
-                };
+                // this.category = {
+                //   name : '',
+                //   intro: ''
+                // };
+                this.$refs[formName].resetFields();
                 this.getCategories();
                 this.$notify({
                   type   : 'success',
@@ -316,6 +406,8 @@
               this.categories[i].changed = 1;
             }
           }
+          // update order here
+          this.updateCategoryOrder();
         } else {
           // do nothing we should only handle moved event
         }
@@ -323,10 +415,9 @@
       handleProChange(evt) {
 
       },
-      orderList() {
-        // this.list = this.list.sort((one, two) => {
-        // return one.order - two.order;
-        // })
+      openProjectForm(categoryId) {
+        this.projectFormVisible = true;
+        this.project.categoryId = categoryId;
       },
       onMove({relatedContext, draggedContext}) {
         const relatedElement = relatedContext.element;
