@@ -1,30 +1,26 @@
 <template>
-  <div>
-    <span>
-      <el-menu :router=true
-               :default-active="$route.path"
-               mode="horizontal"
-               background-color="#545c64"
-               text-color="#fff"
-               active-text-color="#ffd04b">
-        <el-menu-item index="/users"> Users</el-menu-item>
-        <el-menu-item index="/projects"> Projects</el-menu-item>
-        <el-menu-item index="/categories"> Categories</el-menu-item>
-        <el-submenu index="/user">
-          <template slot="title">{{curUser.name}}</template>
-          <el-menu-item index="/profile">
-            profile
-          </el-menu-item>
-          <el-menu-item index="">
-                <i  @click="logout()">logout
-              </i>
-          </el-menu-item>
-        </el-submenu>
-      </el-menu>
-   </span>
-
-  </div>
-
+  <el-header>
+    <el-menu :router=true
+             :default-active="$route.path"
+             mode="horizontal"
+             background-color="#545c64"
+             text-color="#fff"
+             active-text-color="#ffd04b">
+      <el-menu-item index="/users"> Users</el-menu-item>
+      <el-menu-item index="/projects"> Projects</el-menu-item>
+      <el-menu-item index="/categories"> Categories</el-menu-item>
+      <el-submenu index="/user">
+        <template slot="title">{{curUser.name}}</template>
+        <el-menu-item index="/profile">
+          profile
+        </el-menu-item>
+        <el-menu-item index="">
+          <i @click="logout()">logout
+          </i>
+        </el-menu-item>
+      </el-submenu>
+    </el-menu>
+  </el-header>
 </template>
 
 <script>
@@ -63,3 +59,9 @@
     }
   }
 </script>
+
+<style scoped>
+  .menu-row {
+    /*margin-top: -60px;*/
+  }
+</style>

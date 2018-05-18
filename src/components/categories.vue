@@ -1,8 +1,9 @@
 <template>
-  <div>
+  <div class="margin-self">
     <h1>categories</h1>
     <div class="cateWrap">
-      <el-form auto-complete="on" :model="category" label-width="60px" size="medium"
+      <el-form auto-complete="on" :model="category" label-width="60px"
+               class="category-form" size="medium"
                :inline="true" :rules="rules" ref="cateForm">
         <el-form-item label="name" prop="name">
           <el-input style="width:10em" type="text"
@@ -26,50 +27,77 @@
 
     <div class="fluid container">
       <el-row :gutter="18">
-        <draggable element="div" class="list-group" v-model="categories" :options="categoryOptions"
+        <draggable element="div" class="category-group" v-model="categories" :options="categoryOptions"
                    :move="onMove" @start="startDrag" @end="endDrag"
                    @change="handleCateChange">
-          <transition-group type="transition">
-            <div v-for="category in categories" :key="category.id" class="category">
-              <el-form auto-complete="on" :model="category"
-                       label-width="60px" size="medium" :disabled="!editable"
-                       :inline="true" :rules="rules" :ref="setCateFormName(category.id)">
-                <el-form-item prop="name">
-                  <el-input style="width:10em" type="text"
-                            v-model="category.name" placeholder="Please enter name">
-                  </el-input>
-                </el-form-item>
-                <el-form-item prop="intro">
-                  <el-input type="text" v-model="category.intro" placeholder="Please enter intro">
-                  </el-input>
-                </el-form-item>
-                <el-button type="primary" icon="el-icon-success" circle
-                           @click="updateCategory(setCateFormName(category.id), category.id)">
-                </el-button>
-                <el-button type="danger" icon="el-icon-delete" circle
-                           @click="deleteCategory(category.id)">
-                </el-button>
-              </el-form>
-              <!--<div v-if="category.projects.length">-->
-              <!--<div class="col-md-3 project-drag-box">-->
-              <!--<draggable class="list-group" element="span" v-model="category.projects"-->
+          <transition-group type="transition" class="list-group">
+            <el-row v-for="category in categories" :key="category.id" class="category">
+              <el-row class="category-form-row">
+                <el-form auto-complete="on" :model="category" class="category-form"
+                         label-width="60px" size="medium" :disabled="!editable"
+                         :inline="true" :rules="rules" :ref="setCateFormName(category.id)">
+                  <el-form-item prop="name">
+                    <el-input style="width:10em" type="text"
+                              v-model="category.name" placeholder="Please enter name">
+                    </el-input>
+                  </el-form-item>
+                  <el-form-item prop="intro">
+                    <el-input type="text" v-model="category.intro" placeholder="Please enter intro">
+                    </el-input>
+                  </el-form-item>
+                  <el-button type="primary" icon="el-icon-success" circle
+                             @click="updateCategory(setCateFormName(category.id), category.id)">
+                  </el-button>
+                  <el-button type="danger" icon="el-icon-delete" circle
+                             @click="deleteCategory(category.id)">
+                  </el-button>
+                </el-form>
+              </el-row>
+              <!--<div v-if="category.Projects.length">-->
+              <!--<div class="project-drag-box fluid container">-->
+              <!--<draggable class="list-group" element="div" v-model="category.Projects"-->
               <!--:options="projectOptions" :move="onMove" @start="startDrag" @end="endDrag">-->
-              <!--<transition-group type="transition" class="list-group">-->
-              <!--<div v-for="project in category.projects" :key="project.id"-->
-              <!--class="grid-content bg-purple-dark">-->
-              <!--<div class="grid-content bg-purple-light">-->
+              <!--<transition-group type="transition" class="project-group col-md-3 flex">-->
+              <!--<div v-for="project in category.Projects" :key="project.id"-->
+              <!--class="project-content ">-->
+              <!--<div class="grid-content ">-->
               <!--<span class="badge">{{project.name}}</span>-->
               <!--</div>-->
-              <!--<el-button type="danger" icon="el-icon-delete" circle></el-button>-->
+              <!--<el-button type="danger" icon="el-icon-delete"></el-button>-->
               <!--</div>-->
               <!--</transition-group>-->
               <!--</draggable>-->
-              <!--</div>-->
-              <!--</div>-->
-              <!--<el-button type="success" @click="openProjectForm(category.id)">-->
+              <!--&lt;!&ndash;</div>&ndash;&gt;-->
+              <!--<div class="project-group col-md-3 flex">-->
+              <!--<el-button type="success" @click="">-->
               <!--<i class="el-icon-plus"></i> new project-->
               <!--</el-button>-->
-            </div>
+              <!--</div>-->
+              <!--</div>            -->
+              <el-row :gutter="20" class="project-content">
+                <draggable class="list-group" element="div" v-model="category.Projects"
+                           :options="projectOptions" :move="onMove"
+                           @change="handleProChange" @start="startDrag" @end="endDrag"
+                           @add="handleProAdd" @remove="handleProRemove" @update="handleProUpdate">
+                  <transition-group type="transition" class="project-group">
+                    <el-col :span="6" v-for="project in category.Projects" :key="project.id"
+                            class="project-content ">
+                      <div class="grid-content">
+                        <span class="badge">{{project.name}}</span>
+                        <el-button type="danger" icon="el-icon-delete"></el-button>
+                      </div>
+                    </el-col>
+                  </transition-group>
+                </draggable>
+                <!--</div>-->
+                <el-col :span="6">
+                  <el-button type="success" @click="">
+                    <i class="el-icon-plus"></i> new project
+                  </el-button>
+                </el-col>
+              </el-row>
+              <!--</div>-->
+            </el-row>
           </transition-group>
         </draggable>
       </el-row>
@@ -121,7 +149,7 @@
 <script>
   import draggable from 'vuedraggable';
   import {getCategories, createCate, updateCate, delCate} from '../api/category';
-  import {createPro} from '../api/project';
+  import {createPro, updatePro} from '../api/project';
   import _ from 'lodash';
 
   export default {
@@ -252,7 +280,12 @@
             };
             this.categories = result.categories.map((category) => {
               // return _.extend(category, changed);
+              // and then set the changed of projects too.
               category['changed'] = 0;
+              category.Projects   = category.Projects.map((project) => {
+                project['changed'] = 0;
+                return project;
+              });
               return category;
             });
             this.$notify({
@@ -294,6 +327,49 @@
               type   : 'success',
               title  : 'success',
               message: 'category order update'
+            });
+          })
+          .catch(err => {
+            this.$notify.error({
+              title  : 'error',
+              message: err
+            });
+          });
+      },
+
+      updateProjectOrder() {
+        // check the this.categories and update the categories.
+        // care for the name because of the clone is not deep clone
+        let projects = [];
+        for (let i = 0; i < this.categories.length; i++) {
+          let Category = this.categories[i];
+          let Projects = Category.Projects;
+          for (let j = 0; j < Projects.length; j++) {
+            let project = Projects[j];
+            if (project.changed) {
+              projects.push({
+                id        : project.id,
+                order     : project.order,
+                categoryId: project.categoryId
+              });
+            }
+          }
+        }
+        updatePro({
+          projects: JSON.stringify(projects)
+        })
+          .then(result => {
+            // this.getCategories();
+            // we can just handle the changed no need to getCategories();
+            for (let i = 0; i < this.categories.length; i++) {
+              for (let j = 0; j < this.categories[i].Projects.length; j++) {
+                this.categories[i].Projects[j].changed = 0;
+              }
+            }
+            this.$notify({
+              type   : 'success',
+              title  : 'success',
+              message: 'project order update'
             });
           })
           .catch(err => {
@@ -413,7 +489,66 @@
         }
       },
       handleProChange(evt) {
+        // we can change the element here !
+        // for example : element.categoryId = 100;
+        if (evt.moved) {
+          let newIndex = evt.moved.newIndex;
+          let oldIndex = evt.moved.oldIndex;
+          let element  = evt.moved.element;
+          console.log(JSON.stringify(element));
 
+          // set the drag element's order
+          // first get the right project list
+          let Index = this.categories.findIndex((category) => {
+            return category.id === element.categoryId;
+          });
+          // let categories = [{
+          //   id      : 1,
+          //   projects: [{
+          //     id: 1, order: 1, categoryId: 1
+          //   }, {
+          //     id: 2, order: 2, categoryId: 1
+          //   }]
+          // }];
+
+          // set the moved project order and changed
+          this.categories[Index].Projects[newIndex].order += newIndex - oldIndex;
+          this.categories[Index].Projects[newIndex].changed = 1;
+          // element.order += newIndex - oldIndex;
+          // set the circle project order and changed
+          if (newIndex > oldIndex) {
+            for (let i = oldIndex; i < newIndex; i++) {
+              this.categories[Index].Projects[i].order -= 1;
+              this.categories[Index].Projects[i].changed = 1;
+            }
+          } else {
+            for (let i = newIndex + 1; i <= oldIndex; i++) {
+              this.categories[Index].Projects[i].order += 1;
+              this.categories[Index].Projects[i].changed = 1;
+            }
+          }
+          // update order here
+          this.updateProjectOrder();
+        } else if (evt.added) {
+          console.log(evt.added);
+          // do nothing we should only handle moved event
+        } else if (evt.removed) {
+          console.log(evt.removed);
+        } else {
+
+        }
+      },
+      handleProAdd(event) {
+        // console.log('add');
+        // console.log(event);
+      },
+      handleProRemove(event) {
+        // console.log('remove');
+        // console.log(event);
+      },
+      handleProUpdate(event) {
+        // console.log('update');
+        // console.log(event);
       },
       openProjectForm(categoryId) {
         this.projectFormVisible = true;
@@ -457,19 +592,18 @@
 </script>
 
 <style scoped>
+  .margin-self {
+    margin: 1em;
+    /*margin-bottom: 1em;*/
+    /*margin-top: 1em;*/
+    /*margin-left: 1em;*/
+    /*margin-right: 1em;*/
+  }
+
   .cateWrap {
-    flex: 1;
+    margin: 1em;
     max-width: 45rem;
     font-size: .875rem;
-  }
-
-  .el-col {
-    border-radius: 4px;
-  }
-
-  .ghost {
-    opacity: .5;
-    background: #C8EBFB;
   }
 
   .checkbox {
@@ -477,31 +611,76 @@
   }
 
   .category {
-    border: 1px;
+    border: 1px solid #2b3b49;
+    margin: 1em;
+    /*margin-bottom: 1em;*/
+    /*margin-top: 1em;*/
+    /*margin-left: 1em;*/
+    /*margin-right: 1em;*/
+  }
+
+  .category-form-row {
+    border: 1px solid paleturquoise;
+    margin: 1em;
+    /*margin-bottom: 1em;*/
+    /*margin-top: 1em;*/
+    /*margin-left: 1em;*/
+    /*margin-right: 1em;*/
+  }
+
+  .category-form {
+    margin: 1em;
+    /*margin-bottom: 1em;*/
+    /*margin-top: 1em;*/
+    /*margin-left: 1em;*/
+    /*margin-right: 1em;*/
+  }
+
+  .category-group {
+    min-height: 20px;
+    border: solid 1px palevioletred;
+    margin: 1em;
+    /*margin-bottom: 1em;*/
+    /*margin-top: 1em;*/
+    /*margin-left: 1em;*/
+    /*margin-right: 1em;*/
   }
 
   .list-group {
     min-height: 20px;
   }
 
+  .project-group {
+    min-height: 20px;
+    margin: 1em;
+    /*margin-bottom: 1em;*/
+    /*margin-top: 1em;*/
+    /*margin-left: 1em;*/
+    /*margin-right: 1em;*/
+  }
+
+  .project-content {
+    min-height: 20px;
+    margin: 1em;
+    /*border: solid 1px palegoldenrod;*/
+    /*margin-bottom: 1em;*/
+    /*margin-top: 1em;*/
+    /*margin-left: 1em;*/
+    /*margin-right: 1em;*/
+  }
+
   .project-drag-box {
     min-height: 50px;
-  }
-
-  .bg-purple-dark {
-    background: #99a9bf;
-  }
-
-  .bg-purple {
-    background: #d3dce6;
-  }
-
-  .bg-purple-light {
-    background: #e5e9f2;
+    border: solid 1px lightyellow;
   }
 
   .grid-content {
     border-radius: 4px;
     min-height: 36px;
+    margin: 1em;
+    /*margin-bottom: 1em;*/
+    /*margin-top: 1em;*/
+    /*margin-left: 1em;*/
+    /*margin-right: 1em;*/
   }
 </style>
