@@ -20,13 +20,21 @@
       </el-form>
     </div>
 
-    <div class="checkbox">
-      <el-checkbox v-model="draggable">Enable drag and drop</el-checkbox>
-      <el-checkbox v-model="editable">Enable edit categories</el-checkbox>
-    </div>
+    <el-row :gutter="24">
+      <el-col :span="6" class="checkbox">
+        <el-input v-model="searchProject" placeholder="search project"
+                  type="text" clearable></el-input>
+      </el-col>
+      <el-col :span="6" class="checkbox">
+        <el-checkbox v-model="editable">Enable edit categories</el-checkbox>
+      </el-col>
+      <el-col :span="6" class="checkbox">
+        <el-checkbox v-model="draggable">Enable drag and drop</el-checkbox>
+      </el-col>
+    </el-row>
 
     <div class="fluid container">
-      <el-row :gutter="18">
+      <el-row :gutter="22">
         <draggable element="div" class="category-group" v-model="categories" :options="categoryOptions"
                    :move="onMove" @start="startDrag" @end="endDrag"
                    @change="handleCateChange">
@@ -53,27 +61,7 @@
                   </el-button>
                 </el-form>
               </el-row>
-              <!--<div v-if="category.Projects.length">-->
-              <!--<div class="project-drag-box fluid container">-->
-              <!--<draggable class="list-group" element="div" v-model="category.Projects"-->
-              <!--:options="projectOptions" :move="onMove" @start="startDrag" @end="endDrag">-->
-              <!--<transition-group type="transition" class="project-group col-md-3 flex">-->
-              <!--<div v-for="project in category.Projects" :key="project.id"-->
-              <!--class="project-content ">-->
-              <!--<div class="grid-content ">-->
-              <!--<span class="badge">{{project.name}}</span>-->
-              <!--</div>-->
-              <!--<el-button type="danger" icon="el-icon-delete"></el-button>-->
-              <!--</div>-->
-              <!--</transition-group>-->
-              <!--</draggable>-->
-              <!--&lt;!&ndash;</div>&ndash;&gt;-->
-              <!--<div class="project-group col-md-3 flex">-->
-              <!--<el-button type="success" @click="">-->
-              <!--<i class="el-icon-plus"></i> new project-->
-              <!--</el-button>-->
-              <!--</div>-->
-              <!--</div>            -->
+
               <el-row :gutter="20" class="project-content">
                 <draggable class="list-group" element="div" v-model="category.Projects"
                            :options="projectOptions" :move="onMove"
@@ -84,16 +72,19 @@
                             class="project-content ">
                       <div class="grid-content">
                         <span class="badge">{{project.name}}</span>
-                        <el-button type="danger" icon="el-icon-delete"></el-button>
+                        <el-button type="danger" icon="el-icon-delete"
+                                   @click="deleteProject(project.id, project.categoryId)"></el-button>
+
                       </div>
                     </el-col>
                   </transition-group>
                 </draggable>
                 <!--</div>-->
                 <el-col :span="6">
-                  <el-button type="success" @click="">
-                    <i class="el-icon-plus"></i> new project
-                  </el-button>
+                  <el-tooltip class="item" effect="dark" content="new project" placement="right">
+                    <el-button type="success" @click="addProForm(category.id)" icon="el-icon-plus" circle>
+                    </el-button>
+                  </el-tooltip>
                 </el-col>
               </el-row>
               <!--</div>-->
@@ -104,43 +95,39 @@
     </div>
 
     <!-- Form for new project-->
-    <!--<div>-->
-    <!--<el-button type="text" @click="projectFormVisible = true">-->
-    <!--<i class="el-icon-plus"></i> new project-->
-    <!--</el-button>-->
-
-    <!--<el-dialog title="new project" :visible.sync="projectFormVisible">-->
-    <!--<div slot="footer" class="dialog-footer">-->
-    <!--<el-button @click="projectFormVisible = false">取 消</el-button>-->
-    <!--<el-button type="primary" @click="projectFormVisible = false">确 定</el-button>-->
-    <!--</div>-->
-    <!--</el-dialog>-->
-    <!--</div>-->
     <div>
-      <el-form :model="project" label-width="70px" auto-complete="on"
-               :rules="projectRules" :ref="setProFormName(1)">
-        <!--'name', 'order', 'intro', 'url', 'hint', 'logo', 'categoryId', 'segment'-->
-        <el-form-item label="name" prop="name">
-          <el-input v-model="project.name" type="text"></el-input>
-        </el-form-item>
-        <el-form-item label="intro" prop="intro">
-          <el-input v-model="project.intro" type="text"></el-input>
-        </el-form-item>
-        <el-form-item label="logo" prop="logo">
-          <el-input v-model="project.logo" type="text"></el-input>
-        </el-form-item>
-        <el-form-item label="url" prop="url">
-          <el-input v-model="project.url" type="text"></el-input>
-        </el-form-item>
-        <el-form-item label="hint" prop="hint">
-          <el-input v-model="project.hint" type="text"></el-input>
-        </el-form-item>
-        <el-form-item label="segment" prop="segment">
-          <el-input v-model="project.segment" type="text"></el-input>
-        </el-form-item>
-        <el-button @click="resetProjectForm(setProFormName(1))">取 消</el-button>
-        <el-button type="primary" @click="createPro(setProFormName(1), categories[0].id)">确 定</el-button>
-      </el-form>
+      <el-dialog title="new project" :visible.sync="projectFormVisible" :before-close="handleDialogClose">
+        <div>
+          <el-form :model="project" label-width="70px" auto-complete="on"
+                   :rules="projectRules" :ref="setProFormName(project.id)">
+            <!--'name', 'order', 'intro', 'url', 'hint', 'logo', 'categoryId', 'segment'-->
+            <el-form-item label="name" prop="name">
+              <el-input v-model="project.name" type="text"></el-input>
+            </el-form-item>
+            <el-form-item label="intro" prop="intro">
+              <el-input v-model="project.intro" type="text"></el-input>
+            </el-form-item>
+            <el-form-item label="logo" prop="logo">
+              <el-input v-model="project.logo" type="text"></el-input>
+            </el-form-item>
+            <el-form-item label="url" prop="url">
+              <el-input v-model="project.url" type="text"></el-input>
+            </el-form-item>
+            <el-form-item label="hint" prop="hint">
+              <el-input v-model="project.hint" type="text"></el-input>
+            </el-form-item>
+            <el-form-item label="segment" prop="segment">
+              <el-checkbox v-model="project.segment.inner">inner</el-checkbox>
+              <el-checkbox v-model="project.segment.middle">middle</el-checkbox>
+              <el-checkbox v-model="project.segment.outer">outer</el-checkbox>
+            </el-form-item>
+          </el-form>
+        </div>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="cancelProForm()">取 消</el-button>
+          <el-button type="primary" @click="submitProForm(setProFormName(project.id))">确 定</el-button>
+        </div>
+      </el-dialog>
     </div>
 
   </div>
@@ -149,7 +136,8 @@
 <script>
   import draggable from 'vuedraggable';
   import {getCategories, createCate, updateCate, delCate} from '../api/category';
-  import {createPro, updatePro} from '../api/project';
+  import {createPro, updatePro, delPro} from '../api/project';
+  import {number2segment, segment2number} from "../utils/project";
   import _ from 'lodash';
 
   export default {
@@ -169,12 +157,38 @@
           {min: 20, max: 120, message: '长度在 20 到 120 个字符'}
         ]
       };
-      const projectRules = {};
+      const projectRules = {
+        name : [
+          {required: true, message: '请输入项目名称'},
+          {min: 5, max: 30, message: '长度在 5 到 30 个字符'}
+        ],
+        intro: [
+          {required: true, message: '请输入项目描述'},
+          {min: 20, max: 120, message: '长度在 20 到 120 个字符'}
+        ],
+        logo : [
+          {required: true, message: '请输入项目logo'},
+          {min: 10, max: 100, message: '长度在 10 到 100 个字符'}
+        ],
+        url  : [
+          {required: true, message: '请输入项目url'},
+          {min: 10, max: 100, message: '长度在 10 到 100 个字符'}
+        ],
+        hint : [
+          {required: true, message: '请输入项目hint'},
+          {min: 10, max: 100, message: '长度在 10 到 100 个字符'}
+        ]
+      };
       let project        = {
+        id        : 0,
         name      : '',
         intro     : '',
         logo      : '',
-        segment   : '',
+        segment   : {
+          inner : 0,
+          middle: 0,
+          outer : 0
+        },
         url       : '',
         hint      : '',
         categoryId: 0
@@ -184,6 +198,7 @@
           name : '',
           intro: ''
         },
+        searchProject     : '',
         project           : project,
         rules             : rules,
         projectRules      : projectRules,
@@ -204,80 +219,228 @@
         return 'category' + id;
       },
       setProFormName(id) {
-        this.projectFormVisible = true;
         return 'project' + id;
       },
-      resetProjectForm(formName) {
-        this.projectFormVisible = false;
-        this.$refs[formName].resetFields();
+      handleDialogClose(done) {
+        this.cancelProForm();
+        done();
       },
-      createPro(formName, categoryId) {
-        console.log(JSON.stringify(this.project));
+      cancelProForm() {
+        // console.log(this.$refs);
+        this.projectFormVisible = false;
+        // don't need to reset form , just reset the this.project!
+        // this.$refs[formName].resetFields();
+        this.project = {
+          id        : 0,
+          name      : '',
+          intro     : '',
+          logo      : '',
+          segment   : {
+            inner : 0,
+            middle: 0,
+            outer : 0
+          },
+          url       : '',
+          hint      : '',
+          categoryId: 0
+        };
+        // this.$notify({
+        //   type   : 'info',
+        //   title  : 'cancel project form',
+        //   message: this.project
+        // });
+      },
+      addProForm(categoryId) {
         this.project.categoryId = categoryId;
-        createPro(this.project)
-          .then(result => {
-            this.$refs[formName].resetFields();
-            this.getCategories();
-            this.$notify({
-              type   : 'info',
-              title  : 'create project',
-              message: categoryId
-            });
+        this.projectFormVisible = true;
+        this.$notify({
+          type   : 'info',
+          title  : 'add project form',
+          message: this.project
+        });
+      },
+      editProForm(project) {
+        this.project            = project;
+        this.projectFormVisible = true;
+        this.$notify({
+          type   : 'success',
+          title  : 'add project form',
+          message: this.project
+        });
+      },
+      submitProForm(formName) {
+        // use edit and this.project.id detect if we are create a project or edit a project
+        // form validate
+        this.$refs[formName].validate(valid => {
+          if (!valid) {
+            return false;
+          } else {
+            // for create project
+            if (this.project.id === 0) {
+              // here we should not create the id !
+              let project = _.omit(this.project, 'id');
+              // reformat the project.segment!
+
+              project.segment            = segment2number(project.segment);
+              let [inner, middle, outer] = number2segment(project.segment);
+              createPro(project)
+                .then(result => {
+                  this.cancelProForm();
+                  this.getCategories();
+                  this.$notify({
+                    type   : 'success',
+                    title  : 'create project',
+                    message: `segment:${project.segment}:${inner}-${middle}-${outer}`
+                  });
+                })
+                .catch(err => {
+                  this.$notify({
+                    type   : 'error',
+                    title  : 'create project',
+                    message: err
+                  });
+                });
+            } else {
+              // first set the projects array !
+              let projects = [];
+              // here we should not update the order, changed, categoryId!
+              projects.push(_.omit(this.project, ['changed', 'order', 'categoryId']));
+              console.log('in form update project' + JSON.stringify(projects));
+              updatePro({projects: JSON.stringify(projects)})
+                .then(result => {
+                  // success update the project!
+                  this.cancelProForm();
+                  this.getCategories();
+                })
+                .catch(err => {
+                  this.$notify.error({
+                    title  : 'update project',
+                    message: err
+                  })
+                });
+            }
+          }
+        });
+      },
+      deleteProject(id, categoryId) {
+        this.$confirm('此操作将永久删除该项目, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText : '取消',
+          type             : 'warning',
+          center           : true
+        }).then(() => {
+          delPro({
+            id: id
           })
-          .catch(err => {
-            this.$notify({
-              type   : 'error',
-              title  : 'create project',
-              message: err
+            .then(result => {
+              // first find the category
+              let cateIndex = this.categories.findIndex((category) => {
+                return category.id === categoryId;
+              });
+              // first find the project
+              let proIndex  = this.categories[cateIndex].Projects.findIndex((project) => {
+                return project.id === id;
+              });
+              console.log('del project cateIndex-proIndex:' + cateIndex + '-' + proIndex);
+              // handle the rest project's order let them --
+              for (let i = proIndex + 1; i < this.categories[cateIndex].Projects.length; i++) {
+                this.categories[cateIndex].Projects[i].order -= 1;
+                this.categories[cateIndex].Projects[i].changed = 1;
+              }
+              // delete head or tail or middle
+              if (proIndex === this.categories[cateIndex].Projects.length - 1) {
+                this.categories[cateIndex].Projects.pop();
+              } else if (proIndex === 0) {
+                this.categories[cateIndex].Projects.shift();
+              } else {
+                this.categories[cateIndex].Projects.splice(proIndex, 1);
+              }
+              // in order to correct the order after start
+              // we should update the order
+              this.updateProjectOrder();
+              this.$notify({
+                type   : 'success',
+                title  : 'delete',
+                message: 'project delete id-:cateIndex-proIndex:' + id + '-' + cateIndex + '-' + proIndex
+              });
+            })
+            .catch(err => {
+              this.$notify({
+                type   : 'error',
+                title  : 'delete',
+                message: 'category delete' + id
+              });
             });
+        }).catch(() => {
+          this.$message({
+            type   : 'info',
+            message: '已取消删除'
           });
+        });
       },
       deleteCategory(id) {
-        delCate({
-          id: id
+        let cateIndex  = this.categories.findIndex((category) => {
+          return category.id === id;
+        });
+        let numOfPro   = this.categories[cateIndex].Projects.length;
+        let confirmStr = '此操作将永久删除该类别及对应的' + numOfPro + '个项目, 是否继续?';
+        this.$confirm(confirmStr, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText : '取消',
+          type             : 'warning',
+          center           : true
+        }).then(() => {
+          delCate({
+            id: id
+          })
+            .then(result => {
+              let start = this.categories.findIndex((category) => {
+                return category.id === id;
+              });
+              console.log('start:' + start);
+              // handle the rest category's order let them --
+              for (let i = start + 1; i < this.categories.length; i++) {
+                this.categories[i].order -= 1;
+                this.categories[i].changed = 1;
+              }
+              // delete head or tail or middle
+              if (start === this.categories.length - 1) {
+                this.categories.pop();
+              } else if (start === 0) {
+                this.categories.shift();
+              } else {
+                this.categories.splice(start, 1);
+              }
+              // in order to correct the order after start
+              // we should update the order
+              this.updateCategoryOrder();
+              this.$notify({
+                type   : 'success',
+                title  : 'delete',
+                message: 'category delete id' + id + '-start:' + start
+              });
+            })
+            .catch(err => {
+              this.$notify({
+                type   : 'error',
+                title  : 'delete',
+                message: 'category delete' + id
+              });
+            });
+        }).catch(() => {
+          this.$message({
+            type   : 'info',
+            message: '已取消删除'
+          });
+        });
+      },
+      getCategories: _.debounce(function () {
+        return getCategories({
+          search: this.searchProject
         })
           .then(result => {
-            let start = this.categories.findIndex((category) => {
-              return category.id === id;
-            });
-            console.log('start:' + start);
-            // handle the rest category's order let them --
-            for (let i = start + 1; i < this.categories.length; i++) {
-              this.categories[i].order -= 1;
-              this.categories[i].changed = 1;
-            }
-            // delete head or tail or middle
-            if (start === this.categories.length - 1) {
-              this.categories.pop();
-            } else if (start === 0) {
-              this.categories.shift();
-            } else {
-              this.categories.splice(start, 1);
-            }
-            // in order to correct the order after start
-            // we should update the order
-            this.updateCategoryOrder();
-            this.$notify({
-              type   : 'success',
-              title  : 'delete',
-              message: 'category delete id' + id + '-start:' + start
-            });
-          })
-          .catch(err => {
-            this.$notify({
-              type   : 'error',
-              title  : 'delete',
-              message: 'category delete' + id
-            });
-          });
-      },
-      getCategories() {
-        getCategories()
-          .then(result => {
             // add a property of this.categories
-            let changed     = {
-              changed: 0
-            };
+            // update the project.segment!
             this.categories = result.categories.map((category) => {
               // return _.extend(category, changed);
               // and then set the changed of projects too.
@@ -300,7 +463,34 @@
               message: err
             });
           });
-      },
+      }, 500),
+      // getCategories() {
+      //   getCategories()
+      //     .then(result => {
+      //       // add a property of this.categories
+      //       this.categories = result.categories.map((category) => {
+      //         // return _.extend(category, changed);
+      //         // and then set the changed of projects too.
+      //         category['changed'] = 0;
+      //         category.Projects   = category.Projects.map((project) => {
+      //           project['changed'] = 0;
+      //           return project;
+      //         });
+      //         return category;
+      //       });
+      //       this.$notify({
+      //         type   : 'success',
+      //         title  : 'success',
+      //         message: 'get categories from server'
+      //       });
+      //     })
+      //     .catch(err => {
+      //       this.$notify.error({
+      //         title  : 'error',
+      //         message: err
+      //       });
+      //     });
+      // },
       updateCategoryOrder() {
         // check the this.categories and update the categories.
         //
@@ -336,8 +526,7 @@
             });
           });
       },
-
-      updateProjectOrder() {
+      updateProjectOrder(get) {
         // check the this.categories and update the categories.
         // care for the name because of the clone is not deep clone
         let projects = [];
@@ -346,11 +535,12 @@
           let Projects = Category.Projects;
           for (let j = 0; j < Projects.length; j++) {
             let project = Projects[j];
+            // care for the categoryId
             if (project.changed) {
               projects.push({
                 id        : project.id,
                 order     : project.order,
-                categoryId: project.categoryId
+                categoryId: Category.id
               });
             }
           }
@@ -359,11 +549,23 @@
           projects: JSON.stringify(projects)
         })
           .then(result => {
-            // this.getCategories();
-            // we can just handle the changed no need to getCategories();
-            for (let i = 0; i < this.categories.length; i++) {
-              for (let j = 0; j < this.categories[i].Projects.length; j++) {
-                this.categories[i].Projects[j].changed = 0;
+
+            if (get) {
+              // for evt.removed .care for evt.added!
+              // this.getCategories(); should update the project.categoryId;
+              for (let i = 0; i < this.categories.length; i++) {
+                for (let j = 0; j < this.categories[i].Projects.length; j++) {
+                  this.categories[i].Projects[j].changed    = 0;
+                  this.categories[i].Projects[j].categoryId = this.categories[i].id;
+                }
+              }
+            } else {
+              // here is the evt.moved event!
+              // we can just handle the changed no need to getCategories();
+              for (let i = 0; i < this.categories.length; i++) {
+                for (let j = 0; j < this.categories[i].Projects.length; j++) {
+                  this.categories[i].Projects[j].changed = 0;
+                }
               }
             }
             this.$notify({
@@ -397,10 +599,11 @@
             let list     = this.categories.filter((category) => {
               return category.id === id;
             });
+            // or we can use findIndex
             let category = [];
             // here we should not update the order !
             category.push(_.omit(list[0], ['changed', 'order']));
-            console.log('in form update' + JSON.stringify(category));
+            console.log('in form update category' + JSON.stringify(category));
             updateCate({categories: JSON.stringify(category)})
               .then(result => {
                 this.$notify({
@@ -495,7 +698,7 @@
           let newIndex = evt.moved.newIndex;
           let oldIndex = evt.moved.oldIndex;
           let element  = evt.moved.element;
-          console.log(JSON.stringify(element));
+          // console.log(JSON.stringify(element));
 
           // set the drag element's order
           // first get the right project list
@@ -510,7 +713,6 @@
           //     id: 2, order: 2, categoryId: 1
           //   }]
           // }];
-
           // set the moved project order and changed
           this.categories[Index].Projects[newIndex].order += newIndex - oldIndex;
           this.categories[Index].Projects[newIndex].changed = 1;
@@ -530,12 +732,103 @@
           // update order here
           this.updateProjectOrder();
         } else if (evt.added) {
-          console.log(evt.added);
-          // do nothing we should only handle moved event
-        } else if (evt.removed) {
-          console.log(evt.removed);
-        } else {
+          // console.log(evt.added);
+          let newIndex = evt.added.newIndex;
+          let element  = evt.added.element;
+          // first find the category
+          let Index    = this.categories.findIndex((category) => {
+            if (category.Projects[newIndex]) {
+              return category.Projects[newIndex].id === element.id;
+            }
+            return false;
+          });
+          // there we get three type of added
+          // added at head, tail, middle
+          // careful no need to update the categoryId ,because it would set the element.categoryId
+          // which is linked to removed.element
+          // this.categories[Index].Projects[newIndex].categoryId = this.categories[Index].id;
+          // if (newIndex === 0) {
+          //   // added at head
+          //   if (this.categories[Index].Projects.length === 1) {
+          //     // the origin list is empty
+          //     this.categories[Index].Projects[newIndex].order   = 1;
+          //     this.categories[Index].Projects[newIndex].changed = 1;
+          //   } else {
+          //     this.categories[Index].Projects[newIndex].order   = this.categories[Index].Projects[newIndex + 1].order;
+          //     this.categories[Index].Projects[newIndex].changed = 1;
+          //   }
+          //   // this.categories[Index].Projects[newIndex].categoryId = this.categories[Index].id;
+          //   for (let i = newIndex + 1; i < this.categories[Index].Projects.length; i++) {
+          //     this.categories[Index].Projects[i].order += 1;
+          //     this.categories[Index].Projects[i].changed = 1;
+          //   }
+          // } else if (newIndex === this.categories[Index].Projects.length - 1) {
+          //   // added at tail
+          //   if (this.categories[Index].Projects.length === 1) {
+          //     // the origin list is empty
+          //     this.categories[Index].Projects[newIndex].order   = 1;
+          //     this.categories[Index].Projects[newIndex].changed = 1;
+          //   } else {
+          //     this.categories[Index].Projects[newIndex].order   = this.categories[Index].Projects[newIndex - 1].order + 1;
+          //     this.categories[Index].Projects[newIndex].changed = 1;
+          //   }
+          //   // this.categories[Index].Projects[newIndex].categoryId = this.categories[Index].id;
+          // } else {
+          //   // added at middle
+          //   this.categories[Index].Projects[newIndex].order      = this.categories[Index].Projects[newIndex + 1].order;
+          //   this.categories[Index].Projects[newIndex].changed    = 1;
+          //   // this.categories[Index].Projects[newIndex].categoryId = this.categories[Index].id;
+          //   for (let i = newIndex + 1; i < this.categories[Index].Projects.length; i++) {
+          //     this.categories[Index].Projects[i].order += 1;
+          //     this.categories[Index].Projects[i].changed = 1;
+          //   }
+          // }
 
+          // or just two type of added : tail or not
+          if (newIndex === this.categories[Index].Projects.length - 1) {
+            if (this.categories[Index].Projects.length === 1) {
+              // the origin list is empty
+              this.categories[Index].Projects[newIndex].order   = 1;
+              this.categories[Index].Projects[newIndex].changed = 1;
+            } else {
+              this.categories[Index].Projects[newIndex].order   = this.categories[Index].Projects[newIndex - 1].order + 1;
+              this.categories[Index].Projects[newIndex].changed = 1;
+            }
+          } else {
+            if (this.categories[Index].Projects.length === 1) {
+              // the origin list is empty
+              this.categories[Index].Projects[newIndex].order   = 1;
+              this.categories[Index].Projects[newIndex].changed = 1;
+            } else {
+              this.categories[Index].Projects[newIndex].order   = this.categories[Index].Projects[newIndex + 1].order;
+              this.categories[Index].Projects[newIndex].changed = 1;
+            }
+            for (let i = newIndex + 1; i < this.categories[Index].Projects.length; i++) {
+              this.categories[Index].Projects[i].order += 1;
+              this.categories[Index].Projects[i].changed = 1;
+            }
+          }
+          console.log('added Index:' + Index);
+          // not sure ,is it really added event and then removed event?
+        } else if (evt.removed) {
+          // console.log(evt.removed);
+          let oldIndex = evt.removed.oldIndex;
+          let element  = evt.removed.element;
+          // first find the category
+          let Index    = this.categories.findIndex((category) => {
+            return category.id === element.categoryId;
+          });
+          // set the order and changed after the oldIndex;
+          for (let i = oldIndex; i < this.categories[Index].Projects.length; i++) {
+            this.categories[Index].Projects[i].order -= 1;
+            this.categories[Index].Projects[i].changed = 1;
+          }
+          console.log('removed Index:' + Index);
+          // update order here
+          // set params 1 to get the data from sever !
+          this.updateProjectOrder(1);
+        } else {
+          // do nothing
         }
       },
       handleProAdd(event) {
@@ -550,10 +843,7 @@
         // console.log('update');
         // console.log(event);
       },
-      openProjectForm(categoryId) {
-        this.projectFormVisible = true;
-        this.project.categoryId = categoryId;
-      },
+
       onMove({relatedContext, draggedContext}) {
         const relatedElement = relatedContext.element;
         const draggedElement = draggedContext.element;
@@ -586,6 +876,9 @@
         this.$nextTick(() => {
           this.delayedDragging = false
         })
+      },
+      searchProject: function () {
+        this.getCategories();
       }
     }
   }
@@ -594,10 +887,6 @@
 <style scoped>
   .margin-self {
     margin: 1em;
-    /*margin-bottom: 1em;*/
-    /*margin-top: 1em;*/
-    /*margin-left: 1em;*/
-    /*margin-right: 1em;*/
   }
 
   .cateWrap {
@@ -607,80 +896,46 @@
   }
 
   .checkbox {
-    margin: 10px;
+    margin-left: 3em;
   }
 
   .category {
     border: 1px solid #2b3b49;
     margin: 1em;
-    /*margin-bottom: 1em;*/
-    /*margin-top: 1em;*/
-    /*margin-left: 1em;*/
-    /*margin-right: 1em;*/
   }
 
   .category-form-row {
     border: 1px solid paleturquoise;
     margin: 1em;
-    /*margin-bottom: 1em;*/
-    /*margin-top: 1em;*/
-    /*margin-left: 1em;*/
-    /*margin-right: 1em;*/
   }
 
   .category-form {
     margin: 1em;
-    /*margin-bottom: 1em;*/
-    /*margin-top: 1em;*/
-    /*margin-left: 1em;*/
-    /*margin-right: 1em;*/
   }
 
   .category-group {
-    min-height: 20px;
+    min-height: 10px;
     border: solid 1px palevioletred;
     margin: 1em;
-    /*margin-bottom: 1em;*/
-    /*margin-top: 1em;*/
-    /*margin-left: 1em;*/
-    /*margin-right: 1em;*/
   }
 
   .list-group {
-    min-height: 20px;
+    min-height: 10px;
   }
 
   .project-group {
-    min-height: 20px;
-    margin: 1em;
+    min-height: 10px;
     /*margin-bottom: 1em;*/
-    /*margin-top: 1em;*/
-    /*margin-left: 1em;*/
-    /*margin-right: 1em;*/
   }
 
   .project-content {
-    min-height: 20px;
-    margin: 1em;
-    /*border: solid 1px palegoldenrod;*/
-    /*margin-bottom: 1em;*/
-    /*margin-top: 1em;*/
-    /*margin-left: 1em;*/
-    /*margin-right: 1em;*/
-  }
-
-  .project-drag-box {
-    min-height: 50px;
-    border: solid 1px lightyellow;
+    min-height: 10px;
+    margin-bottom: 1em;
   }
 
   .grid-content {
     border-radius: 4px;
-    min-height: 36px;
+    min-height: 10px;
     margin: 1em;
-    /*margin-bottom: 1em;*/
-    /*margin-top: 1em;*/
-    /*margin-left: 1em;*/
-    /*margin-right: 1em;*/
   }
 </style>

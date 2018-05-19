@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>users</h1>
-    <div>
+    <div class="search">
       <el-col :span="5">
         <el-input
           placeholder="搜索用户"
@@ -11,7 +11,7 @@
         </el-input>
       </el-col>
     </div>
-    <div>
+    <div class="table">
       <el-table
         :data="users"
         border
@@ -214,5 +214,15 @@
 </script>
 
 <style scoped>
+  .search {
+    margin: 1em;
+  }
 
+  .table {
+    margin: 1em;
+  }
+
+  .pagination {
+    margin: 1em;
+  }
 </style>

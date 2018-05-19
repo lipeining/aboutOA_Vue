@@ -7,7 +7,7 @@
     </header>
 
     <el-form class="login-form" auto-complete="off" :model="user" label-width="75px"
-             :rules="rules" ref="loginForm" >
+             :rules="rules" ref="loginForm">
       <h2 class="heading">Login</h2>
       <el-form-item>
         <el-switch v-model="phone" :width="50"
@@ -33,7 +33,7 @@
                      :background="verify.background" :progress-bar-bg="verify.progressBarBg"
                      :completed-bg="verify.completedBg" :handler-bg="verify.handlerBg"
                      :handler-icon="verify.handlerIcon" :text-size="verify.textSize"
-                     :success-icon="verify.successIcon" :circle="getShape">
+                     :success-icon="verify.successIcon" :circle="verify.isCircle">
         </drag-verify>
       </el-form-item>
       <el-button type="primary" :loading="loading" @click="submit('loginForm')">
@@ -69,7 +69,7 @@
         width        : 220,
         height       : 40,
         textSize     : '20px',
-        isCircle     : 'true'
+        isCircle     : true
       };
       const user  = {
         phone   : '',
