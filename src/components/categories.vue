@@ -20,15 +20,15 @@
       </el-form>
     </div>
 
-    <el-row :gutter="24">
-      <el-col :span="6" class="checkbox">
+    <el-row :gutter="20">
+      <el-col :span="6" class="searchProject">
         <el-input v-model="searchProject" placeholder="search project"
                   type="text" clearable></el-input>
       </el-col>
-      <el-col :span="6" class="checkbox">
+      <el-col :span="7" class="checkbox">
         <el-checkbox v-model="editable">Enable edit categories</el-checkbox>
       </el-col>
-      <el-col :span="6" class="checkbox">
+      <el-col :span="7" class="checkbox">
         <el-checkbox v-model="draggable">Enable drag and drop</el-checkbox>
       </el-col>
     </el-row>
@@ -68,13 +68,66 @@
                            @change="handleProChange" @start="startDrag" @end="endDrag"
                            @add="handleProAdd" @remove="handleProRemove" @update="handleProUpdate">
                   <transition-group type="transition" class="project-group">
-                    <el-col :span="6" v-for="project in category.Projects" :key="project.id"
+                    <el-col :span="3" v-for="project in category.Projects" :key="project.id"
                             class="project-content ">
                       <div class="grid-content">
-                        <span class="badge">{{project.name}}</span>
-                        <el-button type="danger" icon="el-icon-delete"
-                                   @click="deleteProject(project.id, project.categoryId)"></el-button>
-
+                        <el-popover
+                          placement="top-start"
+                          :title="project.name"
+                          width="400"
+                          trigger="hover">
+                          <el-row>
+                            <el-tag v-if="project.segment.inner">inner</el-tag>
+                            <el-tag v-if="project.segment.middle" type="warning">middle</el-tag>
+                            <el-tag v-if="project.segment.outer" type="success">outer</el-tag>
+                          </el-row>
+                          <el-row :gutter="20">
+                            <el-col :span="12" class="project-intro">
+                              <p>{{project.intro}}</p>
+                            </el-col>
+                            <el-col :span="8" class="project-intro">
+                              <img v-if="project.logo"
+                                   :src="project.logo" :alt="project.logo"
+                                   class="logo">
+                            </el-col>
+                          </el-row>
+                          <el-row :gutter="20">
+                            <el-col :span="12">
+                              <p><strong class="hint">*hint:</strong>{{project.hint}}</p>
+                            </el-col>
+                            <el-col :span="8">
+                              <div v-if="project.url">
+                                <!--<a :href="'http://vue-loader.vuejs.org/'" target="_blank">进入网站</a>-->
+                                <a :href="project.url" target="_blank">进入网站</a>
+                              </div>
+                              <div v-else-if="project.QRCode">
+                                <el-popover
+                                  placement="right"
+                                  width="200"
+                                  trigger="click">
+                                  <img v-if="project.QRCode"
+                                       :src="project.QRCode" :alt="project.QRCode"
+                                       class="QRCode">
+                                  <el-button slot="reference">点击下载</el-button>
+                                </el-popover>
+                              </div>
+                              <div v-else>
+                                <p>no url and no QR code</p>
+                              </div>
+                            </el-col>
+                          </el-row>
+                          <el-row>
+                            <el-button type="success" icon="el-icon-edit-outline"
+                                       @click="">
+                            </el-button>
+                            <el-button type="danger" icon="el-icon-delete"
+                                       @click="deleteProject(project.id, project.categoryId)">
+                            </el-button>
+                          </el-row>
+                          <img v-if="project.logo" slot="reference"
+                               :src="project.logo" :alt="project.logo"
+                               class="logo">
+                        </el-popover>
                       </div>
                     </el-col>
                   </transition-group>
@@ -104,17 +157,54 @@
             <el-form-item label="name" prop="name">
               <el-input v-model="project.name" type="text"></el-input>
             </el-form-item>
-            <el-form-item label="intro" prop="intro">
-              <el-input v-model="project.intro" type="text"></el-input>
-            </el-form-item>
-            <el-form-item label="logo" prop="logo">
-              <el-input v-model="project.logo" type="text"></el-input>
-            </el-form-item>
-            <el-form-item label="url" prop="url">
-              <el-input v-model="project.url" type="text"></el-input>
-            </el-form-item>
             <el-form-item label="hint" prop="hint">
               <el-input v-model="project.hint" type="text"></el-input>
+            </el-form-item>
+            <el-form-item label="intro" prop="intro">
+              <el-input v-model="project.intro" type="textarea"
+                        :autosize="{ minRows: 2, maxRows: 4}"></el-input>
+            </el-form-item>
+            <el-form-item label="logo" prop="logo">
+              <el-upload
+                class="avatar-uploader"
+                ref="uploadLogo"
+                :multiple="false"
+                :show-file-list="false"
+                :data="setUploadData(0)"
+                action="/api/v1/projectimage"
+                :before-upload="beforeLogoUpload"
+                :on-error="handleLogoError"
+                :on-success="uploadLogo">
+                <img v-if="project.logo" :src="project.logo" :alt="project.logo" class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+              </el-upload>
+            </el-form-item>
+            <el-form-item>
+              <el-switch v-model="urlType"
+                         active-text="QR code"
+                         inactive-text="web url">
+              </el-switch>
+            </el-form-item>
+
+            <el-form-item v-if="isQRCode()" label="code" prop="QRCode">
+              <el-upload
+                class="avatar-uploader"
+                ref="uploadQRCode"
+                :multiple="false"
+                :show-file-list="false"
+                :data="setUploadData(1)"
+                action="/api/v1/projectimage"
+                :before-upload="beforeLogoUpload"
+                :on-error="handleLogoError"
+                :on-success="uploadQRCode">
+                <img v-if="project.QRCode" :src="project.QRCode"
+                     :alt="project.QRCode" class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+              </el-upload>
+            </el-form-item>
+            <el-form-item label="url" prop="url" v-else>
+              <el-input v-model="project.url" type="text"
+                        placeholder="web url"></el-input>
             </el-form-item>
             <el-form-item label="segment" prop="segment">
               <el-checkbox v-model="project.segment.inner">inner</el-checkbox>
@@ -124,7 +214,7 @@
           </el-form>
         </div>
         <div slot="footer" class="dialog-footer">
-          <el-button @click="cancelProForm()">取 消</el-button>
+          <el-button @click="cancelProForm(1)">取 消</el-button>
           <el-button type="primary" @click="submitProForm(setProFormName(project.id))">确 定</el-button>
         </div>
       </el-dialog>
@@ -136,7 +226,7 @@
 <script>
   import draggable from 'vuedraggable';
   import {getCategories, createCate, updateCate, delCate} from '../api/category';
-  import {createPro, updatePro, delPro} from '../api/project';
+  import {createPro, updatePro, updateProjects, delPro, removeImage} from '../api/project';
   import {number2segment, segment2number} from "../utils/project";
   import _ from 'lodash';
 
@@ -157,24 +247,36 @@
           {min: 20, max: 120, message: '长度在 20 到 120 个字符'}
         ]
       };
+      let validateUrl    = (rule, value, callback) => {
+        if (value === '' && this.project.QRCode === '') {
+          callback(new Error('url and QR code should not be empty at the same time!'));
+        }
+        callback();
+      };
+      let validateQRCode = (rule, value, callback) => {
+        if (value === '' && this.project.url === '') {
+          callback(new Error('url and QR code should not be empty at the same time!'));
+        }
+        callback();
+      };
       const projectRules = {
-        name : [
+        name  : [
           {required: true, message: '请输入项目名称'},
           {min: 5, max: 30, message: '长度在 5 到 30 个字符'}
         ],
-        intro: [
+        intro : [
           {required: true, message: '请输入项目描述'},
           {min: 20, max: 120, message: '长度在 20 到 120 个字符'}
         ],
-        logo : [
-          {required: true, message: '请输入项目logo'},
-          {min: 10, max: 100, message: '长度在 10 到 100 个字符'}
+        url   : [
+          {required: false, type: 'url'},
+          {validator: validateUrl, trigger: 'blur'}
         ],
-        url  : [
-          {required: true, message: '请输入项目url'},
-          {min: 10, max: 100, message: '长度在 10 到 100 个字符'}
+        QRCode: [
+          {required: false},
+          {validator: validateQRCode, trigger: 'blur'}
         ],
-        hint : [
+        hint  : [
           {required: true, message: '请输入项目hint'},
           {min: 10, max: 100, message: '长度在 10 到 100 个字符'}
         ]
@@ -190,6 +292,7 @@
           outer : 0
         },
         url       : '',
+        QRCode    : '',
         hint      : '',
         categoryId: 0
       };
@@ -200,9 +303,11 @@
         },
         searchProject     : '',
         project           : project,
+        urlType           : false,
         rules             : rules,
         projectRules      : projectRules,
         categories        : [],
+        activeName        : [],
         editable          : true,
         draggable         : true,
         isDragging        : false,
@@ -222,14 +327,28 @@
         return 'project' + id;
       },
       handleDialogClose(done) {
-        this.cancelProForm();
+        this.cancelProForm(1);
         done();
       },
-      cancelProForm() {
+      isQRCode() {
+        return this.urlType;
+      },
+      cancelProForm(removeUrl) {
         // console.log(this.$refs);
         this.projectFormVisible = false;
         // don't need to reset form , just reset the this.project!
         // this.$refs[formName].resetFields();
+        let logoUrl   = this.project.logo;
+        let QRCodeUrl = this.project.QRCode;
+        // for cancel form and remove the unused logoUrl and QRCodeUrl
+        if (removeUrl) {
+          if (logoUrl) {
+            this.removeImage(logoUrl);
+          }
+          if (QRCodeUrl) {
+            this.removeImage(QRCodeUrl);
+          }
+        }
         this.project = {
           id        : 0,
           name      : '',
@@ -241,6 +360,7 @@
             outer : 0
           },
           url       : '',
+          QRCode    : '',
           hint      : '',
           categoryId: 0
         };
@@ -283,9 +403,22 @@
 
               project.segment            = segment2number(project.segment);
               let [inner, middle, outer] = number2segment(project.segment);
+              if (this.urlType) {
+                // should send QR code
+                project['url'] = '';
+              } else {
+                // should send url
+                project['QRCode'] = '';
+              }
+              console.log(JSON.stringify(project));
+              // this.$notify({
+              //   type   : 'success',
+              //   title  : 'create project',
+              //   message: `segment:${project.segment}:${inner}-${middle}-${outer}`
+              // });
               createPro(project)
                 .then(result => {
-                  this.cancelProForm();
+                  this.cancelProForm(0);
                   this.getCategories();
                   this.$notify({
                     type   : 'success',
@@ -306,7 +439,7 @@
               // here we should not update the order, changed, categoryId!
               projects.push(_.omit(this.project, ['changed', 'order', 'categoryId']));
               console.log('in form update project' + JSON.stringify(projects));
-              updatePro({projects: JSON.stringify(projects)})
+              updateProjects({projects: JSON.stringify(projects)})
                 .then(result => {
                   // success update the project!
                   this.cancelProForm();
@@ -446,7 +579,13 @@
               // and then set the changed of projects too.
               category['changed'] = 0;
               category.Projects   = category.Projects.map((project) => {
-                project['changed'] = 0;
+                let [inner, middle, outer] = number2segment(project.segment);
+                project['changed']         = 0;
+                project['segment']         = {
+                  inner : inner,
+                  middle: middle,
+                  outer : outer
+                };
                 return project;
               });
               return category;
@@ -545,7 +684,7 @@
             }
           }
         }
-        updatePro({
+        updateProjects({
           projects: JSON.stringify(projects)
         })
           .then(result => {
@@ -843,12 +982,83 @@
         // console.log('update');
         // console.log(event);
       },
-
       onMove({relatedContext, draggedContext}) {
         const relatedElement = relatedContext.element;
         const draggedElement = draggedContext.element;
         return true;
         // return (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed
+      },
+      setUploadData(num) {
+        // num: 0:logo 1:QR code
+        return {type: num};
+      },
+      handleLogoError(err, file, fileList) {
+        console.log('logo error');
+        // console.log(JSON.stringify(file), JSON.stringify(fileList));
+        console.log(err);
+      },
+      uploadLogo(response, file, fileList) {
+        console.log('after uploadLogo success');
+        console.log(JSON.stringify(file), JSON.stringify(fileList));
+        // first remove the old logoUrl picture if exists;
+        let logoUrl = this.project.logo;
+        if (logoUrl) {
+          this.removeImage(logoUrl);
+        }
+        // use the response file name to set up logoUrl
+        this.project.logo = response.url;
+        // this.logoUrl = URL.createObjectURL(file.raw);
+        this.$notify({
+          type   : 'success',
+          title  : 'logo response',
+          message: response
+        });
+      },
+      uploadQRCode(response, file, fileList) {
+        console.log('after upload QR code success');
+        console.log(JSON.stringify(file), JSON.stringify(fileList));
+        // first remove the old logoUrl picture if exists;
+        let QRCodeUrl = this.project.QRCode;
+        if (QRCodeUrl) {
+          this.removeImage(QRCodeUrl);
+        }
+        // use the response file name to set up logoUrl
+        this.project.QRCode = response.url;
+        this.$notify({
+          type   : 'success',
+          title  : 'QRCode response',
+          message: response
+        });
+      },
+      beforeLogoUpload(file) {
+        const isPic  = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/gif';
+        const isLt2M = file.size / 1024 / 1024 < 2;
+
+        if (!isPic) {
+          this.$message.error('上传头像图片只能是 JPG, PNG, GIF 格式!');
+        }
+        if (!isLt2M) {
+          this.$message.error('上传头像图片大小不能超过 2MB!');
+        }
+        return isPic && isLt2M;
+      },
+      removeImage(url) {
+        removeImage({
+          image: url
+        })
+          .then(result => {
+            this.$notify({
+              type : 'success',
+              title: 'remove image'
+            });
+          })
+          .catch(err => {
+            this.$notify({
+              type   : 'error',
+              title  : 'remove image',
+              message: err
+            });
+          });
       }
     },
     computed  : {
@@ -895,6 +1105,10 @@
     font-size: .875rem;
   }
 
+  .searchProject {
+    margin-left: 5em;
+  }
+
   .checkbox {
     margin-left: 3em;
   }
@@ -933,9 +1147,61 @@
     margin-bottom: 1em;
   }
 
+  .project-intro {
+    min-height: 10px;
+    margin: 1em;
+  }
+
   .grid-content {
     border-radius: 4px;
     min-height: 10px;
     margin: 1em;
+  }
+
+  .avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 178px;
+    height: 178px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
+
+  .logo {
+    width: 50px;
+    height: 50px;
+    /*display: block;*/
+    display: inline;
+  }
+
+  .QRCode {
+    width: 200px;
+    height: 200px;
+    /*display: block;*/
+    display: block;
+  }
+
+  .hint {
+    color: firebrick;
   }
 </style>

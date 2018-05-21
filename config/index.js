@@ -17,6 +17,14 @@ module.exports = {
         pathRewrite : {
           '^/api/v1': '' //需要rewrite重写
         }
+      },
+      // should we proxy the picture resource?
+      '/images': {
+        target      : 'http://localhost:3000/images',//接口域名
+        changeOrigin: true,//是否跨域
+        pathRewrite : {
+          '^/images': '' //需要rewrite重写
+        }
       }
     },
 

@@ -6,12 +6,13 @@
              background-color="#545c64"
              text-color="#fff"
              active-text-color="#ffd04b">
-      <el-menu-item index="/users"> Users</el-menu-item>
-      <el-menu-item index="/projects"> Projects</el-menu-item>
-      <el-menu-item index="/categories"> Categories</el-menu-item>
-      <el-submenu index="/user">
+      <el-menu-item index="/home"> Home</el-menu-item>
+      <el-menu-item index="/backend/users"> Users</el-menu-item>
+      <!--<el-menu-item index="/backend/projects"> Projects</el-menu-item>-->
+      <el-menu-item index="/backend/categories"> Categories</el-menu-item>
+      <el-submenu index="">
         <template slot="title">{{curUser.name}}</template>
-        <el-menu-item index="/profile">
+        <el-menu-item index="/backend/profile">
           profile
         </el-menu-item>
         <el-menu-item index="">

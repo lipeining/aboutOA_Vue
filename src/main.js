@@ -3,7 +3,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import App from './App'
-// import VueRouter from 'vue-router'
+import VueRouter from 'vue-router'
 import router from './router'
 import store from './vuex/user'
 import ElementUI from 'element-ui'
@@ -15,7 +15,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 Vue.use(BootstrapVue);
 Vue.use(ElementUI);
-// Vue.use(VueRouter);
+Vue.use(VueRouter);
 Vue.use(Vuex);
 
 Vue.config.productionTip = false;

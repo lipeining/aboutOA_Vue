@@ -1,24 +1,18 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
 import home from '@/components/home'
 import login from '@/components/login'
 import reg from '@/components/reg'
 import backend from '@/components/backend'
 import users from '@/components/users'
 import profile from '@/components/profile'
-import projects from '@/components/projects'
+// import projects from '@/components/projects'
 import categories from '@/components/categories'
 import store from "../vuex/user";
 
 Vue.use(Router);
 
 let routes = [
-  {
-    path     : '/',
-    name     : 'HelloWorld',
-    component: HelloWorld
-  },
   {
     path     : '/reg',
     name     : 'reg',
@@ -44,7 +38,7 @@ let routes = [
     meta     : {requiresAuth: true},
     children : [
       {
-        path     : '/profile',
+        path     : 'profile',
         name     : 'profile',
         component: profile,
         meta     : {requiresAuth: true}
@@ -52,26 +46,20 @@ let routes = [
       {
         path     : '',
         name     : 'main',
-        component: projects,
-        meta     : {requiresAuth: true}
+        component: categories,
+        meta     : {requiresAdmin: true}
       },
       {
-        path     : '/users',
+        path     : 'users',
         name     : 'users',
         component: users,
-        meta     : {requiresAuth: true}
+        meta     : {requiresAdmin: true}
       },
       {
-        path     : '/projects',
-        name     : 'projects',
-        component: projects,
-        meta     : {requiresAuth: true}
-      },
-      {
-        path     : '/categories',
+        path     : 'categories',
         name     : 'categories',
         component: categories,
-        meta     : {requiresAuth: true}
+        meta     : {requiresAdmin: true}
       }
     ]
   },
@@ -100,6 +88,14 @@ router.beforeEach((to, from, next) => {
       });
     } else {
       next();
+    }
+  } else if (to.matched.some(record => record.meta.requiresAdmin)) {
+    if (store.getters.isAdmin) {
+      next();
+    } else {
+      next({
+        path: '/home'
+      });
     }
   } else {
     next();

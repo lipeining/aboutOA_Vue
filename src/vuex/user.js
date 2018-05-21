@@ -18,6 +18,14 @@ const userStore = new Vuex.Store({
         state.userInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
       }
       return state.isLogin;
+    },
+    isAdmin(state) {
+      if (!state.isLogin) {
+        state.isLogin  = parseInt(localStorage.getItem('isLogin')) || 0;
+        state.userInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
+      }
+      let permission = state.userInfo.permission || 0;
+      return state.isLogin && permission === 90;
     }
   },
   mutations: {

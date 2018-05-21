@@ -110,22 +110,15 @@
             // validated
             this.error   = null;
             this.loading = true;
-            let that     = this;
-            // login and set vuex
-            // this.$store.dispatch('setUserInfo', {
-            //   name : this.user.name,
-            //   phone: this.user.phone,
-            //   email: this.user.email
-            // })
-            //   .then(() => {
-            //     this.$router.replace({path: this.$route.query.redirect || '/home'});
-            //     this.loading = false;
-            //   });
-            login({
-              phone   : this.user.phone,
-              email   : this.user.email,
-              password: this.user.password
-            })
+            let user     = {password: this.user.password};
+            if (this.phone) {
+              user['phone'] = this.user.phone;
+              user['email'] = '';
+            } else {
+              user['phone'] = '';
+              user['email'] = this.user.email;
+            }
+            login(user)
               .then(result => {
                 // console.log(result);
                 this.$store.dispatch('setUserInfo', result.user)
