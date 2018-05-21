@@ -10,7 +10,8 @@
           </el-col>
         </el-row>
         <el-collapse v-model="activeName">
-          <el-collapse-item v-for="category in categories" :name="category.id">
+          <el-collapse-item v-for="category in categories"
+                            :name="category.id" :key="category.id">
             <template slot="title">
               <el-tooltip effect="dark" :content="category.intro"
                           placement="right-start">
