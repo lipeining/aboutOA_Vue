@@ -56,14 +56,18 @@
                         <el-input type="text" v-model="category.intro" placeholder="Please enter intro">
                         </el-input>
                       </el-form-item>
-                      <el-button type="primary" icon="el-icon-success"
-                                 class="icon-size-36" circle
-                                 @click="updateCategory(setCateFormName(category.id), category.id)">
-                      </el-button>
-                      <el-button type="danger" icon="el-icon-delete"
-                                 class="icon-size-36" circle :size="mini"
-                                 @click="deleteCategory(category.id)">
-                      </el-button>
+                      <el-form-item>
+                        <el-button type="primary" icon="el-icon-success"
+                                   class="icon-size-36" circle
+                                   @click="updateCategory(setCateFormName(category.id), category.id)">
+                        </el-button>
+                      </el-form-item>
+                      <el-form-item>
+                        <el-button type="danger" icon="el-icon-delete"
+                                   class="icon-size-36" circle
+                                   @click="deleteCategory(category.id)">
+                        </el-button>
+                      </el-form-item>
                     </el-form>
                     <!--</el-row>-->
                   </template>
@@ -152,118 +156,7 @@
           </transition-group>
         </draggable>
       </el-row>
-      <!--original categories list-->
-      <!--<el-row :gutter="22">-->
-      <!--<draggable element="div" class="category-group" v-model="categories" :options="categoryOptions"-->
-      <!--:move="onMove" @start="startDrag" @end="endDrag"-->
-      <!--@change="handleCateChange">-->
-      <!--<transition-group type="transition" class="list-group">-->
-      <!--<el-row v-for="category in categories" :key="category.id" class="category">-->
-      <!--<el-row class="category-form-row">-->
-      <!--<el-form auto-complete="on" :model="category" class="category-form"-->
-      <!--label-width="60px" size="medium" :disabled="!editable"-->
-      <!--:inline="true" :rules="rules" :ref="setCateFormName(category.id)">-->
-      <!--<el-form-item prop="name">-->
-      <!--<el-input style="width:10em" type="text"-->
-      <!--v-model="category.name" placeholder="Please enter name">-->
-      <!--</el-input>-->
-      <!--</el-form-item>-->
-      <!--<el-form-item prop="intro">-->
-      <!--<el-input type="text" v-model="category.intro" placeholder="Please enter intro">-->
-      <!--</el-input>-->
-      <!--</el-form-item>-->
-      <!--<el-button type="primary" icon="el-icon-success" circle-->
-      <!--@click="updateCategory(setCateFormName(category.id), category.id)">-->
-      <!--</el-button>-->
-      <!--<el-button type="danger" icon="el-icon-delete" circle-->
-      <!--@click="deleteCategory(category.id)">-->
-      <!--</el-button>-->
-      <!--</el-form>-->
-      <!--</el-row>-->
-
-      <!--<el-row :gutter="20" class="project-content">-->
-      <!--<draggable class="list-group" element="div" v-model="category.Projects"-->
-      <!--:options="projectOptions" :move="onMove"-->
-      <!--@change="handleProChange" @start="startDrag" @end="endDrag"-->
-      <!--@add="handleProAdd" @remove="handleProRemove" @update="handleProUpdate">-->
-      <!--<transition-group type="transition" class="project-group">-->
-      <!--<el-col :span="3" v-for="project in category.Projects" :key="project.id"-->
-      <!--class="project-content ">-->
-      <!--<div class="grid-content">-->
-      <!--<el-popover-->
-      <!--placement="top-start"-->
-      <!--:title="project.name"-->
-      <!--width="400"-->
-      <!--trigger="hover">-->
-      <!--<el-row>-->
-      <!--<el-tag v-if="project.segment.inner">inner</el-tag>-->
-      <!--<el-tag v-if="project.segment.middle" type="warning">middle</el-tag>-->
-      <!--<el-tag v-if="project.segment.outer" type="success">outer</el-tag>-->
-      <!--</el-row>-->
-      <!--<el-row :gutter="20">-->
-      <!--<el-col :span="12" class="project-intro">-->
-      <!--<p>{{project.intro}}</p>-->
-      <!--</el-col>-->
-      <!--<el-col :span="8" class="project-intro">-->
-      <!--<img v-if="project.logo"-->
-      <!--:src="project.logo" :alt="project.logo"-->
-      <!--class="logo">-->
-      <!--</el-col>-->
-      <!--</el-row>-->
-      <!--<el-row :gutter="20">-->
-      <!--<el-col :span="12">-->
-      <!--<p><strong class="hint">*hint:</strong>{{project.hint}}</p>-->
-      <!--</el-col>-->
-      <!--<el-col :span="8">-->
-      <!--<div v-if="project.url">-->
-      <!--&lt;!&ndash;<a :href="'http://vue-loader.vuejs.org/'" target="_blank">进入网站</a>&ndash;&gt;-->
-      <!--<a :href="project.url" target="_blank">进入网站</a>-->
-      <!--</div>-->
-      <!--<div v-else-if="project.QRCode">-->
-      <!--<el-popover-->
-      <!--placement="right"-->
-      <!--width="200"-->
-      <!--trigger="click">-->
-      <!--<img v-if="project.QRCode"-->
-      <!--:src="project.QRCode" :alt="project.QRCode"-->
-      <!--class="QRCode">-->
-      <!--<el-button slot="reference">点击下载</el-button>-->
-      <!--</el-popover>-->
-      <!--</div>-->
-      <!--<div v-else>-->
-      <!--<p>no url and no QR code</p>-->
-      <!--</div>-->
-      <!--</el-col>-->
-      <!--</el-row>-->
-      <!--<el-row>-->
-      <!--<el-button type="success" icon="el-icon-edit-outline"-->
-      <!--@click="">-->
-      <!--</el-button>-->
-      <!--<el-button type="danger" icon="el-icon-delete"-->
-      <!--@click="deleteProject(project.id, project.categoryId)">-->
-      <!--</el-button>-->
-      <!--</el-row>-->
-      <!--<img v-if="project.logo" slot="reference"-->
-      <!--:src="project.logo" :alt="project.logo"-->
-      <!--class="logo">-->
-      <!--</el-popover>-->
-      <!--</div>-->
-      <!--</el-col>-->
-      <!--</transition-group>-->
-      <!--</draggable>-->
-      <!--&lt;!&ndash;</div>&ndash;&gt;-->
-      <!--<el-col :span="6">-->
-      <!--<el-tooltip class="item" effect="dark" content="new project" placement="right">-->
-      <!--<el-button type="success" @click="addProForm(category.id)" icon="el-icon-plus" circle>-->
-      <!--</el-button>-->
-      <!--</el-tooltip>-->
-      <!--</el-col>-->
-      <!--</el-row>-->
-      <!--&lt;!&ndash;</div>&ndash;&gt;-->
-      <!--</el-row>-->
-      <!--</transition-group>-->
-      <!--</draggable>-->
-      <!--</el-row>-->
+      <go-top/>
     </div>
 
     <!-- Form for new project-->
@@ -333,7 +226,7 @@
           </el-form>
         </div>
         <div slot="footer" class="dialog-footer">
-          <el-button @click="cancelProForm(1)">取 消</el-button>
+          <el-button @click="cancelProForm(1, 1)">取 消</el-button>
           <el-button type="primary" @click="submitProForm(setProFormName(project.id))">确 定</el-button>
         </div>
       </el-dialog>
@@ -344,6 +237,7 @@
 
 <script>
   import draggable from 'vuedraggable';
+  import GoTop from './go-top';
   import {getCategories, createCate, updateCate, delCate} from '../api/category';
   import {createPro, updatePro, updateProjects, delPro, removeImage} from '../api/project';
   import {number2segment, segment2number} from "../utils/project";
@@ -352,18 +246,19 @@
   export default {
     name      : "categories",
     components: {
-      draggable,
+      'draggable': draggable,
+      'go-top'   : GoTop
     },
     data() {
       // form validate rules
       const rules        = {
         name : [
           {required: true, message: '请输入类别名称'},
-          {min: 5, max: 16, message: '长度在 5 到 16 个字符'}
+          {min: 5, max: 30, message: '长度在 5 到 30 个字符'}
         ],
         intro: [
           {required: true, message: '请输入类别描述'},
-          {min: 20, max: 120, message: '长度在 20 到 120 个字符'}
+          {min: 10, max: 120, message: '长度在 10 到 120 个字符'}
         ]
       };
       let validateUrl    = (rule, value, callback) => {
@@ -385,7 +280,7 @@
         ],
         intro : [
           {required: true, message: '请输入项目描述'},
-          {min: 20, max: 120, message: '长度在 20 到 120 个字符'}
+          {min: 10, max: 120, message: '长度在 10 到 120 个字符'}
         ],
         url   : [
           {required: false, type: 'url'},
@@ -401,19 +296,22 @@
         ]
       };
       let project        = {
-        id        : 0,
-        name      : '',
-        intro     : '',
-        logo      : '',
-        segment   : {
+        changeOrder : 0,
+        changeLogo  : 0,
+        changeQRCode: 0,
+        id          : 0,
+        name        : '',
+        intro       : '',
+        logo        : '',
+        segment     : {
           inner : 0,
           middle: 0,
           outer : 0
         },
-        url       : '',
-        QRCode    : '',
-        hint      : '',
-        categoryId: 0
+        url         : '',
+        QRCode      : '',
+        hint        : '',
+        categoryId  : 0
       };
       return {
         category          : {
@@ -446,13 +344,13 @@
         return 'project' + id;
       },
       handleDialogClose(done) {
-        this.cancelProForm(1);
+        this.cancelProForm(1, 1);
         done();
       },
       isQRCode() {
         return this.urlType;
       },
-      cancelProForm(removeUrl) {
+      cancelProForm(removeUrl, removeQRCode) {
         // console.log(this.$refs);
         this.projectFormVisible = false;
         // don't need to reset form , just reset the this.project!
@@ -460,28 +358,29 @@
         let logoUrl   = this.project.logo;
         let QRCodeUrl = this.project.QRCode;
         // for cancel form and remove the unused logoUrl and QRCodeUrl
-        if (removeUrl) {
-          if (logoUrl) {
-            this.removeImage(logoUrl);
-          }
-          if (QRCodeUrl) {
-            this.removeImage(QRCodeUrl);
-          }
+        if (removeUrl && logoUrl && this.project.changeLogo) {
+          this.removeImage(logoUrl);
+        }
+        if (removeQRCode && QRCodeUrl && this.project.changeLogo) {
+          this.removeImage(QRCodeUrl);
         }
         this.project = {
-          id        : 0,
-          name      : '',
-          intro     : '',
-          logo      : '',
-          segment   : {
+          changeOrder : 0,
+          changeLogo  : 0,
+          changeQRCode: 0,
+          id          : 0,
+          name        : '',
+          intro       : '',
+          logo        : '',
+          segment     : {
             inner : 0,
             middle: 0,
             outer : 0
           },
-          url       : '',
-          QRCode    : '',
-          hint      : '',
-          categoryId: 0
+          url         : '',
+          QRCode      : '',
+          hint        : '',
+          categoryId  : 0
         };
         // this.$notify({
         //   type   : 'info',
@@ -517,17 +416,22 @@
             // for create project
             if (this.project.id === 0) {
               // here we should not create the id !
-              let project = _.omit(this.project, 'id');
+              let project = _.omit(this.project,
+                ['id', 'changeOrder', 'changeLogo', 'changeQRCode']
+              );
               // reformat the project.segment!
 
               project.segment            = segment2number(project.segment);
               let [inner, middle, outer] = number2segment(project.segment);
+
+              let removeQRCode = 0;
               if (this.urlType) {
                 // should send QR code
                 project['url'] = '';
               } else {
                 // should send url
                 project['QRCode'] = '';
+                removeQRCode      = 1;
               }
               console.log(JSON.stringify(project));
               // this.$notify({
@@ -537,7 +441,7 @@
               // });
               createPro(project)
                 .then(result => {
-                  this.cancelProForm(0);
+                  this.cancelProForm(0, removeQRCode);
                   this.getCategories();
                   this.$notify({
                     type   : 'success',
@@ -554,22 +458,24 @@
                 });
             } else {
               // first set the projects array !
-              let projects = [];
-              // here we should not update the order, changed, categoryId!
-              projects.push(_.omit(this.project, ['changed', 'order', 'categoryId']));
-              console.log('in form update project' + JSON.stringify(projects));
-              updateProjects({projects: JSON.stringify(projects)})
-                .then(result => {
-                  // success update the project!
-                  this.cancelProForm();
-                  this.getCategories();
-                })
-                .catch(err => {
-                  this.$notify.error({
-                    title  : 'update project',
-                    message: err
-                  })
-                });
+              // let projects = [];
+              // // here we should not update the order, changeOrder, categoryId!
+              // projects.push(_.omit(this.project,
+              //   ['changeOrder', 'order', 'categoryId']
+              // ));
+              // console.log('in form update project' + JSON.stringify(projects));
+              // updateProjects({projects: JSON.stringify(projects)})
+              //   .then(result => {
+              //     // success update the project!
+              //     this.cancelProForm();
+              //     this.getCategories();
+              //   })
+              //   .catch(err => {
+              //     this.$notify.error({
+              //       title  : 'update project',
+              //       message: err
+              //     })
+              //   });
             }
           }
         });
@@ -597,7 +503,7 @@
               // handle the rest project's order let them --
               for (let i = proIndex + 1; i < this.categories[cateIndex].Projects.length; i++) {
                 this.categories[cateIndex].Projects[i].order -= 1;
-                this.categories[cateIndex].Projects[i].changed = 1;
+                this.categories[cateIndex].Projects[i].changeOrder = 1;
               }
               // delete head or tail or middle
               if (proIndex === this.categories[cateIndex].Projects.length - 1) {
@@ -699,7 +605,9 @@
               category['changed'] = 0;
               category.Projects   = category.Projects.map((project) => {
                 let [inner, middle, outer] = number2segment(project.segment);
-                project['changed']         = 0;
+                project['changeOrder']     = 0;
+                project['changeLogo']      = 0;
+                project['changeQRCode']    = 0;
                 project['segment']         = {
                   inner : inner,
                   middle: middle,
@@ -722,33 +630,6 @@
             });
           });
       }, 500),
-      // getCategories() {
-      //   getCategories()
-      //     .then(result => {
-      //       // add a property of this.categories
-      //       this.categories = result.categories.map((category) => {
-      //         // return _.extend(category, changed);
-      //         // and then set the changed of projects too.
-      //         category['changed'] = 0;
-      //         category.Projects   = category.Projects.map((project) => {
-      //           project['changed'] = 0;
-      //           return project;
-      //         });
-      //         return category;
-      //       });
-      //       this.$notify({
-      //         type   : 'success',
-      //         title  : 'success',
-      //         message: 'get categories from server'
-      //       });
-      //     })
-      //     .catch(err => {
-      //       this.$notify.error({
-      //         title  : 'error',
-      //         message: err
-      //       });
-      //     });
-      // },
       updateCategoryOrder() {
         // check the this.categories and update the categories.
         //
@@ -794,7 +675,7 @@
           for (let j = 0; j < Projects.length; j++) {
             let project = Projects[j];
             // care for the categoryId
-            if (project.changed) {
+            if (project.changeOrder) {
               projects.push({
                 id        : project.id,
                 order     : project.order,
@@ -813,8 +694,8 @@
               // this.getCategories(); should update the project.categoryId;
               for (let i = 0; i < this.categories.length; i++) {
                 for (let j = 0; j < this.categories[i].Projects.length; j++) {
-                  this.categories[i].Projects[j].changed    = 0;
-                  this.categories[i].Projects[j].categoryId = this.categories[i].id;
+                  this.categories[i].Projects[j].changeOrder = 0;
+                  this.categories[i].Projects[j].categoryId  = this.categories[i].id;
                 }
               }
             } else {
@@ -822,7 +703,7 @@
               // we can just handle the changed no need to getCategories();
               for (let i = 0; i < this.categories.length; i++) {
                 for (let j = 0; j < this.categories[i].Projects.length; j++) {
-                  this.categories[i].Projects[j].changed = 0;
+                  this.categories[i].Projects[j].changeOrder = 0;
                 }
               }
             }
@@ -854,20 +735,20 @@
             // });
             // return an array that only contain the exact category.id
             // changed how to solve this ?
-            let list     = this.categories.filter((category) => {
+            let cateIndex  = this.categories.findIndex((category) => {
               return category.id === id;
             });
             // or we can use findIndex
-            let category = [];
+            let categories = [];
             // here we should not update the order !
-            category.push(_.omit(list[0], ['changed', 'order']));
-            console.log('in form update category' + JSON.stringify(category));
-            updateCate({categories: JSON.stringify(category)})
+            categories.push(_.omit(this.categories[cateIndex], ['changed', 'order', 'Projects']));
+            console.log('in form update category' + JSON.stringify(categories));
+            updateCate({categories: JSON.stringify(categories)})
               .then(result => {
                 this.$notify({
                   type   : 'success',
                   title  : 'success',
-                  message: 'category update' + category
+                  message: 'category update' + categories
                 });
               })
               .catch(err => {
@@ -973,18 +854,18 @@
           // }];
           // set the moved project order and changed
           this.categories[Index].Projects[newIndex].order += newIndex - oldIndex;
-          this.categories[Index].Projects[newIndex].changed = 1;
+          this.categories[Index].Projects[newIndex].changeOrder = 1;
           // element.order += newIndex - oldIndex;
           // set the circle project order and changed
           if (newIndex > oldIndex) {
             for (let i = oldIndex; i < newIndex; i++) {
               this.categories[Index].Projects[i].order -= 1;
-              this.categories[Index].Projects[i].changed = 1;
+              this.categories[Index].Projects[i].changeOrder = 1;
             }
           } else {
             for (let i = newIndex + 1; i <= oldIndex; i++) {
               this.categories[Index].Projects[i].order += 1;
-              this.categories[Index].Projects[i].changed = 1;
+              this.categories[Index].Projects[i].changeOrder = 1;
             }
           }
           // update order here
@@ -1046,24 +927,24 @@
           if (newIndex === this.categories[Index].Projects.length - 1) {
             if (this.categories[Index].Projects.length === 1) {
               // the origin list is empty
-              this.categories[Index].Projects[newIndex].order   = 1;
-              this.categories[Index].Projects[newIndex].changed = 1;
+              this.categories[Index].Projects[newIndex].order       = 1;
+              this.categories[Index].Projects[newIndex].changeOrder = 1;
             } else {
-              this.categories[Index].Projects[newIndex].order   = this.categories[Index].Projects[newIndex - 1].order + 1;
-              this.categories[Index].Projects[newIndex].changed = 1;
+              this.categories[Index].Projects[newIndex].order       = this.categories[Index].Projects[newIndex - 1].order + 1;
+              this.categories[Index].Projects[newIndex].changeOrder = 1;
             }
           } else {
             if (this.categories[Index].Projects.length === 1) {
               // the origin list is empty
-              this.categories[Index].Projects[newIndex].order   = 1;
-              this.categories[Index].Projects[newIndex].changed = 1;
+              this.categories[Index].Projects[newIndex].order       = 1;
+              this.categories[Index].Projects[newIndex].changeOrder = 1;
             } else {
-              this.categories[Index].Projects[newIndex].order   = this.categories[Index].Projects[newIndex + 1].order;
-              this.categories[Index].Projects[newIndex].changed = 1;
+              this.categories[Index].Projects[newIndex].order       = this.categories[Index].Projects[newIndex + 1].order;
+              this.categories[Index].Projects[newIndex].changeOrder = 1;
             }
             for (let i = newIndex + 1; i < this.categories[Index].Projects.length; i++) {
               this.categories[Index].Projects[i].order += 1;
-              this.categories[Index].Projects[i].changed = 1;
+              this.categories[Index].Projects[i].changeOrder = 1;
             }
           }
           console.log('added Index:' + Index);
@@ -1079,7 +960,7 @@
           // set the order and changed after the oldIndex;
           for (let i = oldIndex; i < this.categories[Index].Projects.length; i++) {
             this.categories[Index].Projects[i].order -= 1;
-            this.categories[Index].Projects[i].changed = 1;
+            this.categories[Index].Projects[i].changeOrder = 1;
           }
           console.log('removed Index:' + Index);
           // update order here
@@ -1121,11 +1002,12 @@
         console.log(JSON.stringify(file), JSON.stringify(fileList));
         // first remove the old logoUrl picture if exists;
         let logoUrl = this.project.logo;
-        if (logoUrl) {
+        if (logoUrl && this.project.changeLogo) {
           this.removeImage(logoUrl);
         }
         // use the response file name to set up logoUrl
-        this.project.logo = response.url;
+        this.project.logo       = response.url;
+        this.project.changeLogo = 1;
         // this.logoUrl = URL.createObjectURL(file.raw);
         this.$notify({
           type   : 'success',
@@ -1135,14 +1017,15 @@
       },
       uploadQRCode(response, file, fileList) {
         console.log('after upload QR code success');
-        console.log(JSON.stringify(file), JSON.stringify(fileList));
+        // console.log(JSON.stringify(file), JSON.stringify(fileList));
         // first remove the old logoUrl picture if exists;
         let QRCodeUrl = this.project.QRCode;
-        if (QRCodeUrl) {
+        if (QRCodeUrl && this.project.changeQRCode) {
           this.removeImage(QRCodeUrl);
         }
         // use the response file name to set up logoUrl
-        this.project.QRCode = response.url;
+        this.project.QRCode       = response.url;
+        this.project.changeQRCode = 1;
         this.$notify({
           type   : 'success',
           title  : 'QRCode response',
@@ -1261,6 +1144,8 @@
 
   .icon-size-36 {
     /* just hold empty*/
+    /*width: 36px;*/
+    /*height: 36px;*/
   }
 
   .list-group {
