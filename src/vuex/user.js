@@ -26,7 +26,7 @@ const userStore = new Vuex.Store({
       }
       let permission = state.userInfo.permission || 0;
       return state.isLogin && permission === 90;
-    }
+    },
   },
   mutations: {
     setUserInfo(state, userInfo) {

@@ -115,6 +115,9 @@
     created() {
       this.getUsers();
     },
+    // mounted: function () {
+    //   this.getUsers();
+    // },
     watch  : {
       search: function () {
         this.getUsers();

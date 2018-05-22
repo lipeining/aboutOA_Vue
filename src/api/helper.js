@@ -9,6 +9,8 @@ function handleResponse(res) {
   if (res.body.code === 3) {
     store.dispatch('delUserInfo');
     router.push({name: 'login'});
+  } else if (res.body.code === 5) {
+    router.push({name: 'home'});
   } else if (res.body.code === 4) {
     return Promise.reject(res.body.Message.err);
   } else {

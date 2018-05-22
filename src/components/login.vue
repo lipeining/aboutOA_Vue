@@ -50,6 +50,7 @@
 <script>
   import {login} from '../api/user';
   import dragVerify from 'vue-drag-verify';
+  import HmacSHA256 from 'crypto-js/hmac-sha256';
 
   export default {
     name      : 'login',
@@ -110,7 +111,9 @@
             // validated
             this.error   = null;
             this.loading = true;
-            let user     = {password: this.user.password};
+            let password = HmacSHA256(this.user.password, 'about oa').toString();
+            // console.log(password);
+            let user = {password: password};
             if (this.phone) {
               user['phone'] = this.user.phone;
               user['email'] = '';

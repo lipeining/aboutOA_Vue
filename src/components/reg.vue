@@ -5,7 +5,7 @@
     </header>
 
     <el-form class="login-form" auto-complete="off" :model="user" label-width="75px"
-             :rules="rules" ref="loginForm" >
+             :rules="rules" ref="loginForm">
       <h2 class="heading">Register</h2>
       <el-form-item>
         <el-switch v-model="phone" :width="50"
@@ -42,7 +42,7 @@
                      :background="verify.background" :progress-bar-bg="verify.progressBarBg"
                      :completed-bg="verify.completedBg" :handler-bg="verify.handlerBg"
                      :handler-icon="verify.handlerIcon" :text-size="verify.textSize"
-                     :success-icon="verify.successIcon" :circle="getShape">
+                     :success-icon="verify.successIcon" :circle="verify.isCircle">
         </drag-verify>
       </el-form-item>
       <el-button type="primary" :loading="loading" @click="submit('loginForm')">
@@ -59,6 +59,7 @@
 <script>
   import {reg} from '../api/user';
   import dragVerify from 'vue-drag-verify';
+  import HmacSHA256 from 'crypto-js/hmac-sha256';
 
   export default {
     name      : 'reg',
@@ -78,7 +79,7 @@
         width        : 220,
         height       : 40,
         textSize     : '20px',
-        isCircle     : 'true'
+        isCircle     : true
       };
       let validatePass = (rule, value, callback) => {
         if (value === '') {
@@ -138,12 +139,12 @@
             // validated
             this.error   = null;
             this.loading = true;
-            let that     = this;
+            let password = HmacSHA256(this.user.password, 'about oa').toString();
             reg({
               name    : this.user.name,
               phone   : this.user.phone,
               email   : this.user.email,
-              password: this.user.password
+              password: password
             })
               .then(result => {
                 this.$store.dispatch('setUserInfo', result.user)
