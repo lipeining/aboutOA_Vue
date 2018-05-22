@@ -127,7 +127,7 @@
                               </el-row>
                               <el-row>
                                 <el-button type="success" icon="el-icon-edit-outline"
-                                           @click="">
+                                           @click="editProForm(project)">
                                 </el-button>
                                 <el-button type="danger" icon="el-icon-delete"
                                            @click="deleteProject(project.id, project.categoryId)">
@@ -361,7 +361,7 @@
         if (removeUrl && logoUrl && this.project.changeLogo) {
           this.removeImage(logoUrl);
         }
-        if (removeQRCode && QRCodeUrl && this.project.changeLogo) {
+        if (removeQRCode && QRCodeUrl && this.project.changeQRCode) {
           this.removeImage(QRCodeUrl);
         }
         this.project = {
@@ -398,7 +398,9 @@
         });
       },
       editProForm(project) {
-        this.project            = project;
+        // do we need to deep clone project?
+        this.project            = _.cloneDeep(project);
+        this.urlType            = this.project.QRCode ? 1 : 0;
         this.projectFormVisible = true;
         this.$notify({
           type   : 'success',
@@ -417,7 +419,7 @@
             if (this.project.id === 0) {
               // here we should not create the id !
               let project = _.omit(this.project,
-                ['id', 'changeOrder', 'changeLogo', 'changeQRCode']
+                ['id', 'changeOrder', 'changeLogo', 'changeQRCode', 'order']
               );
               // reformat the project.segment!
 
@@ -457,25 +459,39 @@
                   });
                 });
             } else {
-              // first set the projects array !
-              // let projects = [];
-              // // here we should not update the order, changeOrder, categoryId!
-              // projects.push(_.omit(this.project,
-              //   ['changeOrder', 'order', 'categoryId']
-              // ));
-              // console.log('in form update project' + JSON.stringify(projects));
-              // updateProjects({projects: JSON.stringify(projects)})
-              //   .then(result => {
-              //     // success update the project!
-              //     this.cancelProForm();
-              //     this.getCategories();
-              //   })
-              //   .catch(err => {
-              //     this.$notify.error({
-              //       title  : 'update project',
-              //       message: err
-              //     })
-              //   });
+
+              // here we should not update the order, changeOrder, categoryId!
+              let project = _.omit(this.project,
+                ['changeOrder', 'order', 'categoryId', 'changeLogo', 'changeQRCode']
+              );
+
+              project.segment = segment2number(project.segment);
+
+              let removeQRCode = 0;
+              if (this.urlType) {
+                // should send QR code
+                project['url'] = '';
+              } else {
+                // should send url
+                project['QRCode'] = '';
+                removeQRCode      = 1;
+              }
+
+              console.log('in form update project' + JSON.stringify(project));
+              console.log('removeQRCode:' + removeQRCode);
+              // this.cancelProForm(0, removeQRCode);
+              updatePro({project:JSON.stringify(project)})
+                .then(result => {
+                  // success update the project!
+                  this.cancelProForm(0, removeQRCode);
+                  this.getCategories();
+                })
+                .catch(err => {
+                  this.$notify.error({
+                    title  : 'update project',
+                    message: err
+                  });
+                });
             }
           }
         });

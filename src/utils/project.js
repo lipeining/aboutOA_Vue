@@ -5,9 +5,12 @@ function segment2number(segment) {
 }
 
 function number2segment(number) {
-  let inner  = (number & 1) ? 1 : 0;
-  let middle = (number & 2) ? 1 : 0;
-  let outer  = (number & 4) ? 1 : 0;
+  // let inner  = (number & 1) ? true : false;
+  // let middle = (number & 2) ? true : false;
+  // let outer  = (number & 4) ? true : false;
+  let inner  = !!(number & 1);
+  let middle = !!(number & 2);
+  let outer  = !!(number & 4);
   return [inner, middle, outer];
 }
 
