@@ -5,14 +5,20 @@ import login from '@/components/login'
 import reg from '@/components/reg'
 import backend from '@/components/backend'
 import users from '@/components/users'
+import logs from '@/components/logs'
 import profile from '@/components/profile'
-// import projects from '@/components/projects'
 import categories from '@/components/categories'
 import store from "../vuex/user";
 
 Vue.use(Router);
 
 let routes = [
+  {
+    path     : '/',
+    name     : '',
+    component: home,
+    meta     : {requiresAuth: true}
+  },
   {
     path     : '/reg',
     name     : 'reg',
@@ -53,6 +59,12 @@ let routes = [
         path     : 'users',
         name     : 'users',
         component: users,
+        meta     : {requiresAdmin: true}
+      },
+      {
+        path     : 'logs',
+        name     : 'logs',
+        component: logs,
         meta     : {requiresAdmin: true}
       },
       {

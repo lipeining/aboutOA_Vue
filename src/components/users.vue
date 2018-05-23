@@ -179,7 +179,7 @@
               this.users.splice(index, 1);
               this.$message({
                 type   : 'success',
-                message: '删除成功!' + index
+                message: '删除成功!' + row.name
               });
             });
         }).catch(() => {

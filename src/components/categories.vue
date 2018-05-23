@@ -238,7 +238,7 @@
 <script>
   import draggable from 'vuedraggable';
   import GoTop from './go-top';
-  import {getCategories, createCate, updateCate, delCate} from '../api/category';
+  import {getCategories, createCate, updateCate, updateCategories, delCate} from '../api/category';
   import {createPro, updatePro, updateProjects, delPro, removeImage} from '../api/project';
   import {number2segment, segment2number} from "../utils/project";
   import _ from 'lodash';
@@ -659,7 +659,7 @@
             });
           }
         }
-        updateCate({
+        updateCategories({
           categories: JSON.stringify(categories)
         })
           .then(result => {
@@ -755,16 +755,15 @@
               return category.id === id;
             });
             // or we can use findIndex
-            let categories = [];
+            let category = _.omit(this.categories[cateIndex], ['changed', 'order', 'Projects']);
             // here we should not update the order !
-            categories.push(_.omit(this.categories[cateIndex], ['changed', 'order', 'Projects']));
-            console.log('in form update category' + JSON.stringify(categories));
-            updateCate({categories: JSON.stringify(categories)})
+            console.log('in form update category' + JSON.stringify(category));
+            updateCate({category: JSON.stringify(category)})
               .then(result => {
                 this.$notify({
                   type   : 'success',
                   title  : 'success',
-                  message: 'category update' + categories
+                  message: 'category update' + category
                 });
               })
               .catch(err => {

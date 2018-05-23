@@ -7,9 +7,10 @@
              text-color="#fff"
              active-text-color="#ffd04b">
       <el-menu-item index="/home"> Home</el-menu-item>
-      <el-menu-item index="/backend/users"> Users</el-menu-item>
+      <el-menu-item index="/backend/users" v-if="isAdmin"> Users</el-menu-item>
       <!--<el-menu-item index="/backend/projects"> Projects</el-menu-item>-->
-      <el-menu-item index="/backend/categories"> Categories</el-menu-item>
+      <el-menu-item index="/backend/categories" v-if="isAdmin"> Categories</el-menu-item>
+      <el-menu-item index="/backend/logs" v-if="isAdmin"> Logs</el-menu-item>
       <el-submenu index="">
         <template slot="title">{{curUser.name}}</template>
         <el-menu-item index="/backend/profile">
@@ -32,7 +33,8 @@
     name    : 'app-header',
     computed: {
       ...mapGetters({
-        curUser: 'getUserInfo'
+        curUser: 'getUserInfo',
+        isAdmin: 'isAdmin'
       })
     },
     data() {
