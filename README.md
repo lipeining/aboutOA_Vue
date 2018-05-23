@@ -1,37 +1,27 @@
 # aboutoa
 
-for current version, we just findAll categories and their projects.
-so the categories.vue is not satisfy findAndCountAll which should be 
-done on another branch. 
-just because the other page which beyond current page is unable to get and handle 
+## demo
 
-first the draggable emit an added event and then emit removed event
-if we change the element in added the removed event will get the changed element
-which is not what we want ! take care of it!
+![aboutOA gif](aboutOA_drag_and_drop.gif)
 
 
-transition-group
-must have a class and min height so i can move to it 
+  for current version, we just use findAll categories and their projects.
+so the categories.vue is not satisfy findAndCountAll which should be done on another branch. 
+just because the other page is unable to get and handle 
+
+## about vue.draggable
+
+  if we move an element from one span to another span.
+the draggable would emit an added event and then emit removed event.
+if we change the element in added event binding function.
+the removed event will get the changed element which is not what we want ! take care of it!
+if we just move an element in one span , all we get is moved event.
+by the way,the transition-group must have a class or min height so i can move an element to it .
+
+  for more infomation take a look at [vue.draggable](https://github.com/SortableJS/Vue.Draggable)
 
 
-function segment2number(inner, middle, outer){
-  return inner+middle*2+outer*4;
-}
-function number2segment(number){
-  let inner = number & 1;
-  let middle = number & 2;
-  let outer = number & 4;
-  return [inner, middle, outer];
-}
-let [inner, middle, outer] = number2segment(number);
-or use el-checkbox-group which set segment to be an array 
-but we can store the segment as string which is hard to search!
-
-
-npm install vuedraggable
-
-
-> A Vue.js project
+> A Vue.js project aboutOA
 
 ## Build Setup
 
@@ -39,6 +29,9 @@ npm install vuedraggable
 # install dependencies
 npm install
 
+# cnpm install
+# maybe you need to install vuedraggable !
+# npm install vuedraggable
 # serve with hot reload at localhost:8080
 npm run dev
 
