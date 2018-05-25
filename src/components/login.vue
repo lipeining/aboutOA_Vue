@@ -27,14 +27,21 @@
         <el-input type="password" v-model="user.password" placeholder="Please enter password">
         </el-input>
       </el-form-item>
+      <!--<el-form-item>-->
+      <!--<drag-verify :width="verify.width" :height="verify.height"-->
+      <!--:text="verify.text" :success-text="verify.successText"-->
+      <!--:background="verify.background" :progress-bar-bg="verify.progressBarBg"-->
+      <!--:completed-bg="verify.completedBg" :handler-bg="verify.handlerBg"-->
+      <!--:handler-icon="verify.handlerIcon" :text-size="verify.textSize"-->
+      <!--:success-icon="verify.successIcon" :circle="verify.isCircle">-->
+      <!--</drag-verify>-->
+      <!--</el-form-item>-->
       <el-form-item>
-        <drag-verify :width="verify.width" :height="verify.height"
-                     :text="verify.text" :success-text="verify.successText"
-                     :background="verify.background" :progress-bar-bg="verify.progressBarBg"
-                     :completed-bg="verify.completedBg" :handler-bg="verify.handlerBg"
-                     :handler-icon="verify.handlerIcon" :text-size="verify.textSize"
-                     :success-icon="verify.successIcon" :circle="verify.isCircle">
-        </drag-verify>
+        <el-input type="text" v-model="code"></el-input>
+        <!--<el-button @click="getCaptcha()">img</el-button>-->
+        <el-tooltip  effect="dark" content="click to change captcha" placement="right-end">
+          <img :src="captcha" :alt="code" class="captcha" @click="getCaptcha()">
+        </el-tooltip>
       </el-form-item>
       <el-button type="primary" :loading="loading" @click="submit('loginForm')">
         {{ loading ? 'Loading...' : 'Login' }}
@@ -48,9 +55,12 @@
 </template>
 
 <script>
-  import {login} from '../api/user';
+  import {login, getCaptcha, delCaptcha} from '../api/user';
   import dragVerify from 'vue-drag-verify';
   import HmacSHA256 from 'crypto-js/hmac-sha256';
+  import {mapGetters} from 'vuex';
+
+  const request = require('superagent');
 
   export default {
     name      : 'login',
@@ -93,14 +103,44 @@
         ]
       };
       return {
-        user : user, rules: rules,
-        error: null, loading: false,
-        phone: true, verify: verify
+        user   : user, rules: rules,
+        error  : null, loading: false,
+        phone  : true, verify: verify,
+        captcha: '', code: ''
       };
+    },
+    computed: {
+      // 使用对象展开运算符将 getter 混入 computed 对象中
+      ...mapGetters([
+        'isLogin'
+      ])
+    },
+    created() {
+      this.getCaptcha();
+    },
+    beforeDestroy(){
+      // console.log(JSON.stringify(this.$store.state.userInfo));
+      // get {} if exit without login
+      // get object if login
+      if(this.isLogin){
+        // do nothing! while login
+      } else {
+        if(this.captcha){
+          delCaptcha({
+            url:this.captcha
+          });
+        }
+      }
     },
     methods   : {
       getShape() {
         return this.verify.isCircle === 'true';
+      },
+      getCaptcha() {
+        getCaptcha()
+          .then(result => {
+            this.captcha = result.captcha;
+          });
       },
       submit(formName) {
         // form validate
@@ -113,7 +153,7 @@
             this.loading = true;
             let password = HmacSHA256(this.user.password, 'about oa').toString();
             // console.log(password);
-            let user = {password: password};
+            let user     = {password: password};
             if (this.phone) {
               user['phone'] = this.user.phone;
               user['email'] = '';
@@ -121,6 +161,7 @@
               user['phone'] = '';
               user['email'] = this.user.email;
             }
+            user['code'] = this.code;
             login(user)
               .then(result => {
                 // console.log(result);
@@ -143,6 +184,10 @@
 
 <style lang="scss">
   @import '../assets/styles/variables';
+
+  .captcha {
+
+  }
 
   .login {
     flex: 1;

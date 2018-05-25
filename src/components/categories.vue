@@ -819,6 +819,12 @@
         // first newIndex < oldIndex :
         // the circle should ++
         // console.log(evt.moved);
+//         另外一种更新order的写法，
+// 如果newIndex>oldIndex时，element.order= categories[newIndex-1].order。
+// 需要将其他受影响的元素的order进行减一。
+// 如果newIndex<oldIndex时，element.order =categories[newIndex+1].order。需要将其他受到影响的元素的order进行加一。
+// 这种写法，在删除元素时，不用更新顺序。
+
         if (evt.moved) {
           let newIndex = evt.moved.newIndex;
           let oldIndex = evt.moved.oldIndex;
