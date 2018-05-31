@@ -9,74 +9,45 @@
                       type="text" clearable></el-input>
           </el-col>
         </el-row>
-        <el-collapse v-model="activeName">
-          <el-collapse-item v-for="category in categories"
-                            :name="category.id" :key="category.id">
-            <template slot="title">
-              <el-tooltip effect="dark" :content="category.intro"
-                          placement="right-start">
-                <span class="category-name">{{category.name}}</span>
-                <!--<i class="header-icon el-icon-info"></i>-->
-              </el-tooltip>
-            </template>
-            <el-row :gutter="20" class="project-content">
-              <el-col :span="3" v-for="project in category.Projects" :key="project.id"
-                      class="project-content ">
-                <div class="grid-content">
-                  <el-popover
-                    placement="top-start"
-                    :title="project.name"
-                    width="400"
-                    trigger="hover">
-                    <el-row>
-                      <el-tag v-if="project.segment.inner">inner</el-tag>
-                      <el-tag v-if="project.segment.middle" type="warning">middle</el-tag>
-                      <el-tag v-if="project.segment.outer" type="success">outer</el-tag>
-                    </el-row>
-                    <el-row :gutter="20">
-                      <el-col :span="12" class="project-intro">
-                        <p>{{project.intro}}</p>
-                      </el-col>
-                      <el-col :span="8" class="project-intro">
-                        <img v-if="project.logo"
-                             :src="project.logo" :alt="project.logo"
-                             class="logo">
-                      </el-col>
-                    </el-row>
-                    <el-row :gutter="20">
-                      <el-col :span="12">
-                        <p><strong class="hint">*hint:</strong>{{project.hint}}</p>
-                      </el-col>
-                      <el-col :span="8">
-                        <div v-if="project.url">
-                          <!--<a :href="'http://vue-loader.vuejs.org/'" target="_blank">进入网站</a>-->
-                          <a :href="project.url" target="_blank">进入网站</a>
-                        </div>
-                        <div v-else-if="project.QRCode">
-                          <el-popover
-                            placement="right"
-                            width="200"
-                            trigger="click">
-                            <img v-if="project.QRCode"
-                                 :src="project.QRCode" :alt="project.QRCode"
-                                 class="QRCode">
-                            <el-button slot="reference">点击下载</el-button>
-                          </el-popover>
-                        </div>
-                        <div v-else>
-                          <p>no url and no QR code</p>
-                        </div>
-                      </el-col>
-                    </el-row>
-                    <img v-if="project.logo" slot="reference"
-                         :src="project.logo" :alt="project.logo"
-                         class="logo">
-                  </el-popover>
-                </div>
-              </el-col>
-            </el-row>
-          </el-collapse-item>
-        </el-collapse>
+        <el-row>
+          <el-select
+            v-model="targetOrder"
+            filterable
+            remote
+            reserve-keyword
+            placeholder="请输入关键词"
+            :remote-method="getCategories">
+            <el-option
+              v-for="item in categoryNames"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-row>
+        <el-row :gutter="20" v-if="categories.length">
+          <el-col :span="6" v-for="category in categories" :key="category.id">
+            <el-tooltip effect="dark" :content="category.intro"
+                        placement="right-start">
+              <span class="category-name">{{category.name}}</span>
+              <!--<i class="header-icon el-icon-info"></i>-->
+            </el-tooltip>
+          </el-col>
+        </el-row>
+        <el-row v-else>
+          no categories
+        </el-row>
+      </div>
+      <div class="block">
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="pageIndex"
+          :page-sizes="[20, 50, 100]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total">
+        </el-pagination>
       </div>
       <go-top/>
     </section>
@@ -99,7 +70,11 @@
     data() {
       return {
         categories   : [],
-        activeName   : [],
+        categoryNames: [],
+        targetOrder  : '',
+        pageIndex    : 1,
+        total        : 1000,
+        pageSize     : 20,
         searchProject: ''
       }
     },
@@ -109,24 +84,19 @@
     methods   : {
       getCategories: _.debounce(function () {
         return getCategories({
-          search: this.searchProject
+          pageIndex: this.pageIndex,
+          pageSize : this.pageSize,
+          search   : this.searchProject
         })
           .then(result => {
-            this.categories = result.categories.map((category) => {
-              category.Projects = category.Projects.map((project) => {
-                let [inner, middle, outer] = number2segment(project.segment);
-                project['segment']         = {
-                  inner : inner,
-                  middle: middle,
-                  outer : outer
-                };
-                return project;
+            this.categories = result.categories.rows;
+            this.total      = result.categories.count;
+            for (let i = 0; i <= this.categories.length; i++) {
+              this.categoryNames.push({
+                value: this.categories[i].order,
+                label: i + 1
               });
-              return category;
-            });
-            this.activeName = this.categories.map((category) => {
-              return category.id;
-            });
+            }
             this.$notify({
               type   : 'success',
               title  : 'success',
@@ -134,12 +104,26 @@
             });
           })
           .catch(err => {
-            this.$notify.error({
-              title  : 'error',
-              message: err
-            });
           });
       }, 500),
+      handleCurrentChange(val) {
+        this.pageIndex = val;
+        this.getCategories();
+        // this.$notify({
+        //   type   : 'success',
+        //   title  : 'pageChange',
+        //   message: val,
+        // });
+      },
+      handleSizeChange(val) {
+        this.pageSize = val;
+        this.getCategories();
+        // this.$notify({
+        //   type   : 'success',
+        //   title  : 'sizeChange',
+        //   message: val,
+        // });
+      }
     },
     watch     : {
       searchProject: function () {
