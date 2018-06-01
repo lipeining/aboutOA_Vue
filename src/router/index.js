@@ -8,6 +8,7 @@ import users from '@/components/users'
 import logs from '@/components/logs'
 import profile from '@/components/profile'
 import categories from '@/components/categories'
+import projects from '@/components/projects'
 import store from "../vuex/user";
 
 Vue.use(Router);
@@ -71,6 +72,13 @@ let routes = [
         path     : 'categories',
         name     : 'categories',
         component: categories,
+        meta     : {requiresAdmin: true}
+      },
+      {
+
+        path     : 'projects/:categoryId',
+        name     : 'projects',
+        component: projects,
         meta     : {requiresAdmin: true}
       }
     ]

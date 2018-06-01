@@ -400,7 +400,7 @@
       editProForm(project) {
         // do we need to deep clone project?
         this.project            = _.cloneDeep(project);
-        this.urlType            = this.project.QRCode ? 1 : 0;
+        this.urlType            = !!this.project.QRCode;
         this.projectFormVisible = true;
         this.$notify({
           type   : 'success',

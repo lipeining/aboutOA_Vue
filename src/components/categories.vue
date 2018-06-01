@@ -17,7 +17,7 @@
                 {{category.intro}}
               </el-row>
               <el-button-group>
-                <router-link :to="{name:'home'}">
+                <router-link :to="{name:'projects', params: { categoryId: category.id }}">
                   <el-button type="primary" icon="el-icon-info"></el-button>
                 </router-link>
                 <el-button type="primary" icon="el-icon-edit" @click="editCateForm(category)"></el-button>
@@ -64,11 +64,11 @@
             <el-form-item prop="order" label="order">
               <el-select
                 v-model="category.order"
-                filterable
-                remote
-                reserve-keyword
+                :filterable="true"
+                :remote="true"
+                :automatic-dropdown="true"
                 placeholder="请输入关键词"
-                :remote-method="getCategoryNames()">
+                :remote-method="getCategoryNames">
                 <el-option
                   v-for="item in categoryNames"
                   :key="item.value"
@@ -90,7 +90,7 @@
 
 <script>
   import GoTop from './go-top';
-  import {getCategories} from '../api/category';
+  import {getCategories, updateCate, getCategoryNames} from '../api/category';
   import _ from 'lodash';
 
   export default {
@@ -107,6 +107,9 @@
         intro: [
           {required: true, message: '请输入类别描述'},
           {min: 10, max: 120, message: '长度在 10 到 120 个字符'}
+        ],
+        order: [
+          {required: true, message: ''}
         ]
       };
       return {
@@ -147,6 +150,7 @@
         });
         this.category.order      = (this.pageIndex - 1) * this.pageSize + index + 1;
         this.categoryFormVisible = true;
+        this.getCategoryNames();
       },
       cancelCateForm() {
         // console.log(this.$refs);
@@ -166,13 +170,15 @@
             return false;
           } else {
             // validated
-            updateCate({category: JSON.stringify(category)})
+            // this.categoryFormVisible = false;
+            updateCate({category: JSON.stringify(this.category)})
               .then(result => {
+                this.cancelCateForm();
                 this.getCategories();
                 this.$notify({
                   type   : 'success',
                   title  : 'success',
-                  message: 'category update' + category
+                  message: 'category update'
                 });
               })
               .catch(err => {
@@ -185,15 +191,26 @@
         })
       },
       getCategoryNames() {
-        setTimeout(() => {
-          this.categoryNames = [];
-          for (let i = 1; i <= this.total; i++) {
-            this.categoryNames.push({
-              value: i,
-              label: i
+        getCategoryNames()
+          .then(result => {
+            this.categoryNames = [];
+            for (let i = 0; i < result.categoryNames.length; i++) {
+              this.categoryNames.push({
+                value: result.categoryNames[i].order,
+                label: i+1
+              });
+            }
+            this.$notify({
+              type : 'success',
+              title: 'get category names'
             });
-          }
-        }, 200);
+          })
+          .catch(err => {
+            this.$notify.error({
+              title  : 'get category names',
+              message: err
+            })
+          });
       },
       getCategories: _.debounce(function () {
         return getCategories({

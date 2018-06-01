@@ -10,6 +10,7 @@
       <el-menu-item index="/backend/users" v-if="isAdmin"> Users</el-menu-item>
       <!--<el-menu-item index="/backend/projects"> Projects</el-menu-item>-->
       <el-menu-item index="/backend/categories" v-if="isAdmin"> Categories</el-menu-item>
+      <el-menu-item index="/backend/projects" v-if="isAdmin"> Projects</el-menu-item>
       <el-menu-item index="/backend/logs" v-if="isAdmin"> Logs</el-menu-item>
       <el-submenu index="">
         <template slot="title">{{curUser.name}}</template>

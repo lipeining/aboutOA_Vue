@@ -16,7 +16,16 @@
       'app-header': appHeader
     },
     methods   : {
-    }
+    },
+    // watch: {
+    //   '$route' (to, from) {
+    //     // 对路由变化作出响应...
+    //     console.log(to);
+    //     console.log(from);
+    //     console.log(from.params.categoryId);
+    //     console.log(to.params.categoryId);
+    //   }
+    // }
   }
 </script>
 
