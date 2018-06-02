@@ -17,6 +17,11 @@ import ElCollapseItemAbout from './components/collapse-item-about.vue';
 // keyUp enter or down!
 Vue.component(ElCollapseItemAbout.name, ElCollapseItemAbout);
 
+import VueSocketio from 'vue-socket.io';
+import socketIO from 'socket.io-client';
+// Vue.use(VueSocketio, socketIO('http://localhost:3000'));
+Vue.use(VueSocketio, socketIO('http://localhost:3000/admin'));
+
 Vue.use(BootstrapVue);
 Vue.use(ElementUI);
 Vue.use(VueRouter);

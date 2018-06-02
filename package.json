@@ -12,10 +12,12 @@
   "dependencies": {
     "crypto-js": "^3.1.9-1",
     "element-ui": "^2.3.8",
+    "socket.io-client": "^2.1.1",
     "superagent": "^3.8.3",
     "vue": "^2.5.2",
     "vue-drag-verify": "^1.0.6",
     "vue-router": "^3.0.1",
+    "vue-socket.io": "^2.1.1-b",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
