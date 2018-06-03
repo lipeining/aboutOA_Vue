@@ -46,10 +46,10 @@
     created() {
     },
     sockets : {
-      connect: function () {
+      connect  : function () {
         console.log('socket connected')
       },
-      newLog : function (val) {
+      newLog   : function (val) {
         console.log('this method was fired by the socket server. eg: io.emit("newLog", data)');
         console.log(val);
         this.$notify({
@@ -66,7 +66,42 @@
           title  : 'admin log',
           message: val
         });
-      }
+      },
+      diffLogin: function (data) {
+        console.log('diffLogin');
+        console.log(`${data.ip}-${data.sessionId}`);
+        let user = data.user;
+        this.$confirm('agree the different place user login?', 'warning', {
+          confirmButtonText: 'yes',
+          cancelButtonText : 'no',
+          type             : 'warning',
+          center           : true
+        }).then(() => {
+          this.$message({
+            type   : 'success',
+            message: 'agree!'
+          });
+          let sendData = {
+            id       : user.id,
+            name     : user.name,
+            sessionId: data.sessionId,
+            agree    : true
+          };
+          this.$socket.emit('agreeLogin', sendData);
+        }).catch(() => {
+          this.$message({
+            type   : 'info',
+            message: 'do not agree'
+          });
+          let sendData = {
+            id       : user.id,
+            name     : user.name,
+            sessionId: data.sessionId,
+            agree    : false
+          };
+          this.$socket.emit('agreeLogin', sendData);
+        });
+      },
     },
     methods : {
       logout() {

@@ -39,7 +39,7 @@
       <el-form-item>
         <el-input type="text" v-model="code"></el-input>
         <!--<el-button @click="getCaptcha()">img</el-button>-->
-        <el-tooltip  effect="dark" content="click to change captcha" placement="right-end">
+        <el-tooltip effect="dark" content="click to change captcha" placement="right-end">
           <img :src="captcha" :alt="code" class="captcha" @click="getCaptcha()">
         </el-tooltip>
       </el-form-item>
@@ -109,7 +109,7 @@
         captcha: '', code: ''
       };
     },
-    computed: {
+    computed  : {
       // 使用对象展开运算符将 getter 混入 computed 对象中
       ...mapGetters([
         'isLogin'
@@ -118,21 +118,42 @@
     created() {
       this.getCaptcha();
     },
-    beforeDestroy(){
-      // console.log(JSON.stringify(this.$store.state.userInfo));
-      // get {} if exit without login
-      // get object if login
-      if(this.isLogin){
-        // do nothing! while login
-      } else {
-        if(this.captcha){
-          delCaptcha({
-            url:this.captcha
+
+    sockets: {
+      connect: function () {
+        console.log('socket connected')
+      },
+      agree  : function (data) {
+        if (data.agree) {
+          this.$store.dispatch('setUserInfo', data.user)
+            .then(() => {
+              this.$router.replace({path: this.$route.query.redirect || '/home'});
+              this.loading = false;
+            });
+        } else {
+          this.loading = true;
+          this.$notify.error({
+            title  : 'can not login',
+            message: 'other login user do not agree'
           });
         }
       }
     },
-    methods   : {
+    beforeDestroy() {
+      // console.log(JSON.stringify(this.$store.state.userInfo));
+      // get {} if exit without login
+      // get object if login
+      if (this.isLogin) {
+        // do nothing! while login
+      } else {
+        if (this.captcha) {
+          delCaptcha({
+            url: this.captcha
+          });
+        }
+      }
+    },
+    methods: {
       getShape() {
         return this.verify.isCircle === 'true';
       },
@@ -165,6 +186,13 @@
             login(user)
               .then(result => {
                 // console.log(result);
+                let data = {
+                  id       : result.user.id,
+                  name     : result.user.name,
+                  sessionId: result.sessionId
+                };
+                this.$socket.emit('login', data);
+
                 this.$store.dispatch('setUserInfo', result.user)
                   .then(() => {
                     this.$router.replace({path: this.$route.query.redirect || '/home'});
@@ -172,8 +200,22 @@
                   });
               })
               .catch(err => {
-                this.error   = {title: '发生错误', message: err};
-                this.loading = false;
+                if (err.diffUser) {
+                  let data = {
+                    id       : err.diffUser.id,
+                    name     : err.diffUser.name,
+                    sessionId: err.sessionId
+                  };
+                  this.$socket.emit('login', data);
+                  this.loading = true;
+                  this.$notify.error({
+                    title  : 'login in different place',
+                    message: 'need to confirm on other login client'
+                  });
+                } else {
+                  this.error   = {title: '发生错误', message: err};
+                  this.loading = false;
+                }
               });
           }
         })
