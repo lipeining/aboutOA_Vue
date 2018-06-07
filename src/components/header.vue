@@ -47,25 +47,29 @@
     },
     sockets : {
       connect  : function () {
-        console.log('socket connected')
+        console.log('socket connected');
       },
       newLog   : function (val) {
-        console.log('this method was fired by the socket server. eg: io.emit("newLog", data)');
-        console.log(val);
-        this.$notify({
-          type   : 'success',
-          title  : 'new log',
-          message: val
-        });
+        // console.log('this method was fired by the socket server. eg: io.emit("newLog", data)');
+        // console.log(val);
+        if (this.isAdmin) {
+          this.$notify({
+            type   : 'success',
+            title  : 'new log',
+            message: val
+          });
+        }
       },
       adminLog : function (val) {
-        console.log('this method was fired by the socket server. eg: adminNamespace.emit("adminLog", data)');
-        console.log(val);
-        this.$notify({
-          type   : 'success',
-          title  : 'admin log',
-          message: val
-        });
+        // console.log('this method was fired by the socket server. eg: adminNamespace.emit("adminLog", data)');
+        // console.log(val);
+        if (this.isAdmin) {
+          this.$notify({
+            type   : 'success',
+            title  : 'admin log',
+            message: val
+          });
+        }
       },
       diffLogin: function (data) {
         console.log('diffLogin');
