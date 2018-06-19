@@ -2,6 +2,8 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import home from '@/components/home'
 import login from '@/components/login'
+import findPass from '@/components/findPass'
+import resetPass from '@/components/resetPass'
 import reg from '@/components/reg'
 import backend from '@/components/backend'
 import users from '@/components/users'
@@ -30,6 +32,18 @@ let routes = [
     path     : '/login',
     name     : 'login',
     component: login,
+    meta     : {requiresNotAuth: true}
+  },
+  {
+    path     : '/findpass',
+    name     : 'findPass',
+    component: findPass,
+    meta     : {requiresNotAuth: true}
+  },
+  {
+    path     : '/resetpass',
+    name     : 'resetPass',
+    component: resetPass,
     meta     : {requiresNotAuth: true}
   },
   {

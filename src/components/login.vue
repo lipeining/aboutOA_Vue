@@ -48,6 +48,9 @@
       </el-button>
     </el-form>
     <footer class="login-footer">
+      forget password go to
+      <router-link to="/findpass">find password</router-link>
+    </footer><footer class="login-footer">
       Not a member go to
       <router-link to="/reg">register</router-link>
     </footer>
