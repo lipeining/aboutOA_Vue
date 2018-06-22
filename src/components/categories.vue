@@ -20,11 +20,19 @@
                 <router-link :to="{name:'projects', params: { categoryId: category.id }}">
                   <el-button type="primary" icon="el-icon-info"></el-button>
                 </router-link>
-                <el-button type="primary" icon="el-icon-edit" @click="editCateForm(category)"></el-button>
-                <el-button type="danger" icon="el-icon-delete"></el-button>
+                <el-button type="primary" icon="el-icon-edit"
+                           @click="editCateForm(category)"></el-button>
+                <el-button type="danger" icon="el-icon-delete"
+                           @click="deleteCategory(category.id)"></el-button>
               </el-button-group>
               <el-button slot="reference">{{category.name}}</el-button>
             </el-popover>
+          </el-col>
+          <el-col :span="6" class="category">
+            <el-tooltip class="item" effect="dark" content="new category" placement="right">
+              <el-button type="success" @click="addCateForm()" icon="el-icon-plus" circle>
+              </el-button>
+            </el-tooltip>
           </el-col>
         </el-row>
         <el-row v-else>
@@ -45,7 +53,8 @@
       <go-top/>
     </section>
     <div>
-      <el-dialog title="edit category" :visible.sync="categoryFormVisible"
+      <el-dialog :title="getCateFormTitle(category.id)"
+                 :visible.sync="categoryFormVisible"
                  :before-close="handleDialogClose">
         <div>
           <el-form auto-complete="on" :model="category" class="category-form"
@@ -61,7 +70,7 @@
                         :autosize="{ minRows: 2, maxRows: 4}" placeholder="Please enter intro">
               </el-input>
             </el-form-item>
-            <el-form-item prop="order" label="order">
+            <el-form-item prop="order" label="order" v-if="category.id">
               <el-select
                 v-model="category.order"
                 :filterable="true"
@@ -81,7 +90,7 @@
         </div>
         <div slot="footer" class="dialog-footer">
           <el-button @click="cancelCateForm()">取 消</el-button>
-          <el-button type="primary" @click="updateCategory(setCateFormName(category.id))">确 定</el-button>
+          <el-button type="primary" @click="submitCateForm(setCateFormName(category.id))">确 定</el-button>
         </div>
       </el-dialog>
     </div>
@@ -90,7 +99,7 @@
 
 <script>
   import GoTop from './go-top';
-  import {getCategories, updateCate, getCategoryNames} from '../api/category';
+  import {getCategories, updateCate, createCate, getCategoryNames, delCate} from '../api/category';
   import _ from 'lodash';
 
   export default {
@@ -142,6 +151,12 @@
         this.cancelCateForm();
         done();
       },
+      getCateFormTitle(id) {
+        return id ? 'edit category' : 'add category';
+      },
+      addCateForm() {
+        this.categoryFormVisible = true;
+      },
       editCateForm(category) {
         // do we need to deep clone project?
         this.category            = _.cloneDeep(category);
@@ -162,7 +177,7 @@
           order: ''
         };
       },
-      updateCategory(formName) {
+      submitCateForm(formName) {
         // form validate
         console.log(this.$refs);
         this.$refs[formName].validate(valid => {
@@ -170,23 +185,47 @@
             return false;
           } else {
             // validated
-            // this.categoryFormVisible = false;
-            updateCate({category: JSON.stringify(this.category)})
-              .then(result => {
-                this.cancelCateForm();
-                this.getCategories();
-                this.$notify({
-                  type   : 'success',
-                  title  : 'success',
-                  message: 'category update'
-                });
-              })
-              .catch(err => {
-                this.$notify.error({
-                  title  : 'error',
-                  message: err
+            if (this.category.id) {
+              // edit and then update
+              // this.categoryFormVisible = false;
+              updateCate({category: JSON.stringify(this.category)})
+                .then(result => {
+                  this.cancelCateForm();
+                  this.getCategories();
+                  this.$notify({
+                    type   : 'success',
+                    title  : 'success',
+                    message: 'category update'
+                  });
                 })
-              });
+                .catch(err => {
+                  this.$notify.error({
+                    title  : 'error',
+                    message: err
+                  })
+                });
+            } else {
+              // new and add category
+              createCate({
+                name : this.category.name,
+                intro: this.category.intro
+              })
+                .then(result => {
+                  this.cancelCateForm();
+                  this.getCategories();
+                  this.$notify({
+                    type   : 'success',
+                    title  : 'success',
+                    message: 'category update'
+                  });
+                })
+                .catch(err => {
+                  this.$notify.error({
+                    title  : 'error',
+                    message: err
+                  })
+                });
+            }
           }
         })
       },
@@ -197,7 +236,7 @@
             for (let i = 0; i < result.categoryNames.length; i++) {
               this.categoryNames.push({
                 value: result.categoryNames[i].order,
-                label: i+1
+                label: i + 1
               });
             }
             this.$notify({
@@ -214,9 +253,10 @@
       },
       getCategories: _.debounce(function () {
         return getCategories({
-          pageIndex: this.pageIndex,
-          pageSize : this.pageSize,
-          search   : this.searchProject
+          pageIndex : this.pageIndex,
+          pageSize  : this.pageSize,
+          getProject: 0,
+          search    : this.searchProject
         })
           .then(result => {
             this.categories = result.categories.rows;
@@ -247,7 +287,51 @@
         //   title  : 'sizeChange',
         //   message: val,
         // });
-      }
+      },
+      deleteCategory(id) {
+        let confirmStr = '此操作将永久删除该类别及对应的项目, 是否继续?';
+        this.$confirm(confirmStr, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText : '取消',
+          type             : 'warning',
+          center           : true
+        }).then(() => {
+          delCate({
+            id: id
+          })
+            .then(result => {
+              let start = this.categories.findIndex((category) => {
+                return category.id === id;
+              });
+              console.log('start:' + start);
+              // delete head or tail or middle
+              if (start === this.categories.length - 1) {
+                this.categories.pop();
+              } else if (start === 0) {
+                this.categories.shift();
+              } else {
+                this.categories.splice(start, 1);
+              }
+              this.$notify({
+                type   : 'success',
+                title  : 'delete',
+                message: 'category delete id' + id + '-start:' + start
+              });
+            })
+            .catch(err => {
+              this.$notify({
+                type   : 'error',
+                title  : 'delete',
+                message: 'category delete' + id
+              });
+            });
+        }).catch(() => {
+          this.$message({
+            type   : 'info',
+            message: '已取消删除'
+          });
+        });
+      },
     },
     watch     : {
       searchProject: function () {

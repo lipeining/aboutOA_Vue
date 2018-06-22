@@ -60,13 +60,20 @@
               <el-button type="success" icon="el-icon-edit-outline"
                          @click="editProForm(project)">
               </el-button>
-              <el-button type="danger" icon="el-icon-delete">
+              <el-button type="danger" icon="el-icon-delete"
+                         @click="deleteProject(project.id)">
               </el-button>
             </el-row>
             <img v-if="project.logo" slot="reference"
                  :src="project.logo" :alt="project.logo"
                  class="logo">
           </el-popover>
+        </el-col>
+        <el-col :span="3">
+          <el-tooltip class="item" effect="dark" content="new project" placement="right">
+            <el-button type="success" @click="addProForm(categoryId)" icon="el-icon-plus" circle>
+            </el-button>
+          </el-tooltip>
         </el-col>
       </el-row>
       <div class="block">
@@ -146,7 +153,7 @@
               <el-checkbox v-model="project.segment.middle">middle</el-checkbox>
               <el-checkbox v-model="project.segment.outer">outer</el-checkbox>
             </el-form-item>
-            <el-form-item label="category" prop="categoryId">
+            <el-form-item label="category" prop="categoryId" v-if="project.id">
               <el-select
                 v-model="project.categoryId"
                 filterable
@@ -162,7 +169,7 @@
                 </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item prop="order" label="order">
+            <el-form-item prop="order" label="order" v-if="project.id">
               <el-select
                 v-model="project.order"
                 filterable
@@ -190,7 +197,7 @@
 
 <script>
   import GoTop from './go-top';
-  import {getProjects, getProjectNames, updatePro, removeImage} from '../api/project';
+  import {getProjects, getProjectNames, updatePro, removeImage, createPro, delPro} from '../api/project';
   import {getCategoryNames} from "../api/category";
   import {number2segment, segment2number} from "../utils/project";
   import _ from 'lodash';
@@ -265,11 +272,13 @@
         total             : 1000,
         pageSize          : 20,
         pageIndex         : 1,
+        categoryId        : 0,
         urlType           : false,
         projectFormVisible: false,
       }
     },
     created() {
+      this.categoryId = this.$route.params.categoryId;
       this.getProjects();
     },
     beforeRouteUpdate(to, from, next) {
@@ -362,6 +371,16 @@
       isQRCode() {
         return this.urlType;
       },
+      addProForm(categoryId) {
+        this.project.categoryId = categoryId;
+        this.projectFormVisible = true;
+        // no need to get categoryNames and projectNames!
+        this.$notify({
+          type   : 'info',
+          title  : 'add project form',
+          message: this.project
+        });
+      },
       editProForm(project) {
         // do we need to deep clone project?
         this.project            = _.cloneDeep(project);
@@ -429,87 +448,90 @@
           if (!valid) {
             return false;
           } else {
-            // for create project
-            // if (this.project.id === 0) {
-            //   // here we should not create the id !
-            //   let project = _.omit(this.project,
-            //     ['id', 'changeOrder', 'changeLogo', 'changeQRCode', 'order']
-            //   );
-            //   // reformat the project.segment!
-            //
-            //   project.segment            = segment2number(project.segment);
-            //   let [inner, middle, outer] = number2segment(project.segment);
-            //
-            //   let removeQRCode = 0;
-            //   if (this.urlType) {
-            //     // should send QR code
-            //     project['url'] = '';
-            //   } else {
-            //     // should send url
-            //     project['QRCode'] = '';
-            //     removeQRCode      = 1;
-            //   }
-            //   console.log(JSON.stringify(project));
-            //   // this.$notify({
-            //   //   type   : 'success',
-            //   //   title  : 'create project',
-            //   //   message: `segment:${project.segment}:${inner}-${middle}-${outer}`
-            //   // });
-            //   createPro(project)
-            //     .then(result => {
-            //       this.cancelProForm(0, removeQRCode);
-            //       this.getCategories();
-            //       this.$notify({
-            //         type   : 'success',
-            //         title  : 'create project',
-            //         message: `segment:${project.segment}:${inner}-${middle}-${outer}`
-            //       });
-            //     })
-            //     .catch(err => {
-            //       this.$notify({
-            //         type   : 'error',
-            //         title  : 'create project',
-            //         message: err
-            //       });
-            //     });
-            // here we should not update the order, changeOrder, categoryId!
-            let project = _.omit(this.project,
-              ['changeOrder', 'changeLogo', 'changeQRCode']
-            );
+            if (this.project.id) {
+              // here we should not update the order, changeOrder, categoryId!
+              let project = _.omit(this.project,
+                ['changeOrder', 'changeLogo', 'changeQRCode']
+              );
 
-            project.segment = segment2number(project.segment);
+              project.segment = segment2number(project.segment);
 
-            let removeQRCode = 0;
-            if (this.urlType) {
-              // should send QR code
-              project['url'] = '';
-            } else {
-              // should send url
-              project['QRCode'] = '';
-              removeQRCode      = 1;
-            }
+              let removeQRCode = 0;
+              if (this.urlType) {
+                // should send QR code
+                project['url'] = '';
+              } else {
+                // should send url
+                project['QRCode'] = '';
+                removeQRCode      = 1;
+              }
 
-            console.log('in form update project' + JSON.stringify(project));
-            console.log('removeQRCode:' + removeQRCode);
-            // this.cancelProForm(0, removeQRCode);
-            updatePro({project: JSON.stringify(project)})
-              .then(result => {
-                // success update the project!
-                this.cancelProForm(0, removeQRCode);
-                this.getProjects();
-              })
-              .catch(err => {
-                this.$notify.error({
-                  title  : 'update project',
-                  message: err
+              console.log('in form update project' + JSON.stringify(project));
+              console.log('removeQRCode:' + removeQRCode);
+              // this.cancelProForm(0, removeQRCode);
+              updatePro({project: JSON.stringify(project)})
+                .then(result => {
+                  // success update the project!
+                  this.cancelProForm(0, removeQRCode);
+                  this.getProjects();
+                })
+                .catch(err => {
+                  this.$notify.error({
+                    title  : 'update project',
+                    message: err
+                  });
                 });
-              });
+            } else {
+              // for create project
+
+              // here we should not create the id !
+              let project = _.omit(this.project,
+                ['id', 'changeOrder', 'changeLogo', 'changeQRCode', 'order']
+              );
+              // reformat the project.segment!
+
+              project.segment            = segment2number(project.segment);
+              let [inner, middle, outer] = number2segment(project.segment);
+
+              let removeQRCode = 0;
+              if (this.urlType) {
+                // should send QR code
+                project['url'] = '';
+              } else {
+                // should send url
+                project['QRCode'] = '';
+                removeQRCode      = 1;
+              }
+              console.log(JSON.stringify(project));
+              // this.$notify({
+              //   type   : 'success',
+              //   title  : 'create project',
+              //   message: `segment:${project.segment}:${inner}-${middle}-${outer}`
+              // });
+              createPro(project)
+                .then(result => {
+                  this.cancelProForm(0, removeQRCode);
+                  this.getProjects();
+                  this.$notify({
+                    type   : 'success',
+                    title  : 'create project',
+                    message: `segment:${project.segment}:${inner}-${middle}-${outer}`
+                  });
+                })
+                .catch(err => {
+                  this.$notify({
+                    type   : 'error',
+                    title  : 'create project',
+                    message: err
+                  });
+                });
+            }
           }
         });
       },
       getProjects: _.debounce(function () {
         return getProjects({
-          categoryId: this.$route.params.categoryId,
+          categoryId: this.categoryId,
           pageIndex : this.pageIndex,
           pageSize  : this.pageSize,
           search    : this.searchProject
@@ -628,7 +650,53 @@
         //   title  : 'sizeChange',
         //   message: val,
         // });
-      }
+      },
+      deleteProject(id) {
+        this.$confirm('此操作将永久删除该项目, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText : '取消',
+          type             : 'warning',
+          center           : true
+        }).then(() => {
+          delPro({
+            id: id
+          })
+            .then(result => {
+
+              // first find the project
+              let proIndex = this.projects.findIndex((project) => {
+                return project.id === id;
+              });
+              console.log('del project proIndex:' + proIndex);
+
+              // delete head or tail or middle
+              if (proIndex === this.projects.length - 1) {
+                this.projects.pop();
+              } else if (proIndex === 0) {
+                this.projects.shift();
+              } else {
+                this.projects.splice(proIndex, 1);
+              }
+              this.$notify({
+                type   : 'success',
+                title  : 'delete',
+                message: 'project delete id-proIndex:' + id + '-' + proIndex
+              });
+            })
+            .catch(err => {
+              this.$notify({
+                type   : 'error',
+                title  : 'delete',
+                message: 'project delete' + id
+              });
+            });
+        }).catch(() => {
+          this.$message({
+            type   : 'info',
+            message: '已取消删除'
+          });
+        });
+      },
     }
   }
 </script>

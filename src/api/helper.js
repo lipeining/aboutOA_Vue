@@ -14,7 +14,7 @@ function handleResponse(res) {
   } else if (res.body.code === 4) {
     return Promise.reject(res.body.Message.err);
   } else {
-    return res.body.Message;
+    return Promise.resolve(res.body.Message);
   }
 }
 
