@@ -8,7 +8,7 @@
                       type="text" clearable></el-input>
           </el-col>
         </el-row>
-        <el-row :gutter="24" v-if="categories.length">
+        <el-row :gutter="24">
           <el-col :span="6" v-for="category in categories"
                   class="category" :key="category.id">
             <el-popover trigger="hover"
@@ -34,9 +34,6 @@
               </el-button>
             </el-tooltip>
           </el-col>
-        </el-row>
-        <el-row v-else>
-          no categories
         </el-row>
       </div>
       <div class="block">

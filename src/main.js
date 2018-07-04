@@ -7,10 +7,8 @@ import VueRouter from 'vue-router'
 import router from './router'
 import store from './vuex/user'
 import ElementUI from 'element-ui'
-import BootstrapVue from 'bootstrap-vue'
 import 'element-ui/lib/theme-chalk/index.css'
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
+
 
 import VueQriously from 'vue-qriously'
 Vue.use(VueQriously);
@@ -29,7 +27,7 @@ import socketIO from 'socket.io-client';
 Vue.use(VueSocketio, socketIO('http://localhost:3000'));
 // Vue.use(VueSocketio, socketIO('http://localhost:3000/admin'));
 
-Vue.use(BootstrapVue);
+
 Vue.use(ElementUI);
 Vue.use(VueRouter);
 Vue.use(Vuex);
