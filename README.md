@@ -23,7 +23,10 @@ the draggable would emit an added event and then emit removed event.<br>
 if we change the element in added event binding function.
 the removed event will get the changed element which is not what we want ! take care of it!<br>
 if we just move an element in one span , all we get is moved event.<br>
-by the way,the <transition-group> must have a class or min-height so we can move an element into it.<br>
+by the way,the <transition-group> must have a class or min-height so we can move an element into it. and the element should set display:block <br>
+```
+To be able to drag items on an empty draggable component, set a min-height more than 0 on the draggable component or the transition-group if any and ensure the transition group has display: block; otherwise height won't work.
+```
 Note that all the method starting by "on" will be ignored as draggable component expose the same API via events.
 
   for more infomation take a look at [vue.draggable](https://github.com/SortableJS/Vue.Draggable)

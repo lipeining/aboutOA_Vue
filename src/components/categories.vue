@@ -38,7 +38,7 @@
         <draggable element="div" class="category-group" v-model="categories" :options="categoryOptions"
                    :move="onMove" @start="startDrag" @end="endDrag"
                    @change="handleCateChange">
-          <transition-group type="transition" class="list-group">
+          <transition-group type="transition" >
             <el-row v-for="category in categories" :key="category.id" class="category">
               <el-collapse class="collapse-self">
                 <el-collapse-item-about :name="category.id">
@@ -72,13 +72,13 @@
                     <!--</el-row>-->
                   </template>
                   <el-row :gutter="20" class="project-content">
-                    <draggable class="list-group" element="div" v-model="category.Projects"
+                    <draggable element="div" class="project-list" v-model="category.Projects"
                                :options="projectOptions" :move="onMove"
                                @change="handleProChange" @start="startDrag" @end="endDrag"
                                @add="handleProAdd" @remove="handleProRemove" @update="handleProUpdate">
                       <transition-group type="transition" class="project-group">
                         <el-col :span="3" v-for="project in category.Projects" :key="project.id"
-                                class="project-content ">
+                                class="project-content">
                           <div class="grid-content">
                             <el-popover
                               placement="top-start"
@@ -1159,8 +1159,9 @@
   }
 
   .category-group {
-    min-height: 10px;
+    min-height: 100px;
     margin: 1em;
+    display: block;
   }
 
   .icon-size-36 {
@@ -1170,11 +1171,19 @@
   }
 
   .list-group {
-    min-height: 10px;
+    min-height: 50px;
+    display: block;
+  }
+
+  .project-list {
+    min-height: 50px;
+    display: block;
+    /*margin-bottom: 1em;*/
   }
 
   .project-group {
-    min-height: 10px;
+    min-height: 50px;
+    display: block;
     /*margin-bottom: 1em;*/
   }
 
@@ -1182,6 +1191,7 @@
     min-height: 10px;
     margin-top: 1em;
     margin-bottom: 1em;
+    transition: all 1s;
   }
 
   .project-intro {
