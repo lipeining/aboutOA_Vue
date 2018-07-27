@@ -7,6 +7,7 @@
              text-color="#fff"
              active-text-color="#ffd04b">
       <el-menu-item index="/home"> Home</el-menu-item>
+      <el-menu-item index="/duodoc"> duodoc</el-menu-item>
       <el-menu-item index="/backend/users" v-if="isAdmin"> Users</el-menu-item>
       <!--<el-menu-item index="/backend/projects"> Projects</el-menu-item>-->
       <el-menu-item index="/backend/categories" v-if="isAdmin"> Categories</el-menu-item>

@@ -131,6 +131,7 @@
     },
     methods   : {
       getCategories: _.debounce(function () {
+        return true;
         return getCategories({
           pageIndex : this.pageIndex,
           pageSize  : this.pageSize,

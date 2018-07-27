@@ -198,7 +198,7 @@
 
                 this.$store.dispatch('setUserInfo', result.user)
                   .then(() => {
-                    this.$router.replace({path: this.$route.query.redirect || '/home'});
+                    this.$router.replace({path: this.$route.query.redirect || '/duodoc'});
                     this.loading = false;
                   });
               })
